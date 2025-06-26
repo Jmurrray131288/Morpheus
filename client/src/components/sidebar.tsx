@@ -1,14 +1,17 @@
-import { User, Settings } from "lucide-react";
+import { User, Settings, Activity, Users, Pill, TestTube, Heart, Dna, FileText } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export default function Sidebar() {
+  const [location] = useLocation();
+  
   const navigationItems = [
-    { icon: "fas fa-tachometer-alt", label: "Dashboard", active: true },
-    { icon: "fas fa-users", label: "Patients" },
-    { icon: "fas fa-pills", label: "Medications" },
-    { icon: "fas fa-flask", label: "Lab Records" },
-    { icon: "fas fa-heart", label: "Health Metrics" },
-    { icon: "fas fa-dna", label: "Precision Medicine" },
-    { icon: "fas fa-file-medical", label: "Visit Notes" },
+    { icon: Activity, label: "Dashboard", path: "/", active: location === "/" },
+    { icon: Users, label: "Patients", path: "/patients", active: location === "/patients" },
+    { icon: Pill, label: "Medications", path: "/medications", active: location === "/medications" },
+    { icon: TestTube, label: "Lab Records", path: "/lab-records", active: location === "/lab-records" },
+    { icon: Heart, label: "Health Metrics", path: "/health-metrics", active: location === "/health-metrics" },
+    { icon: Dna, label: "Precision Medicine", path: "/precision-medicine", active: location === "/precision-medicine" },
+    { icon: FileText, label: "Visit Notes", path: "/visit-notes", active: location === "/visit-notes" },
   ];
 
   return (
