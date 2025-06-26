@@ -120,7 +120,9 @@ Morpheus is a comprehensive Electronic Medical Records (EMR) system built as a f
 
 ```
 Changelog:
-- June 26, 2025. Initial setup
+- June 26, 2025: Initial EMR system setup with comprehensive schema
+- June 26, 2025: Fixed date validation issue in patient creation form - converted empty strings to null for optional date fields
+- June 26, 2025: Successfully deployed and tested complete EMR dashboard with patient creation and medication management functionality
 ```
 
 ## User Preferences

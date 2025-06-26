@@ -315,6 +315,10 @@ export const insertPatientSchema = createInsertSchema(patients).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
+}).extend({
+  dateOfBirth: z.string().optional().transform(val => val === "" ? null : val),
+  gender: z.string().optional().transform(val => val === "" ? null : val),
+  contactNumber: z.string().optional().transform(val => val === "" ? null : val),
 });
 
 export const insertMedicationEntrySchema = createInsertSchema(medicationEntries).omit({

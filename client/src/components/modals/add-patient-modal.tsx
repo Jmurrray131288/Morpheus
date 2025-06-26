@@ -37,9 +37,9 @@ export default function AddPatientModal({ open, onOpenChange }: AddPatientModalP
     defaultValues: {
       firstName: "",
       lastName: "",
-      dateOfBirth: "",
-      gender: "",
-      contactNumber: "",
+      dateOfBirth: undefined,
+      gender: undefined,
+      contactNumber: undefined,
     },
   });
 
@@ -115,7 +115,7 @@ export default function AddPatientModal({ open, onOpenChange }: AddPatientModalP
                 <FormItem>
                   <FormLabel>Date of Birth</FormLabel>
                   <FormControl>
-                    <Input {...field} type="date" />
+                    <Input {...field} type="date" value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -128,7 +128,7 @@ export default function AddPatientModal({ open, onOpenChange }: AddPatientModalP
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gender</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value || ""}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select gender" />
@@ -153,7 +153,7 @@ export default function AddPatientModal({ open, onOpenChange }: AddPatientModalP
                 <FormItem>
                   <FormLabel>Contact Number</FormLabel>
                   <FormControl>
-                    <Input {...field} type="tel" placeholder="Enter phone number" />
+                    <Input {...field} type="tel" placeholder="Enter phone number" value={field.value || ""} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
