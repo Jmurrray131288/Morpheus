@@ -80,13 +80,13 @@ export default function VisitNotesPage() {
                     <div className="flex items-center space-x-3">
                       <Calendar className="w-4 h-4 text-gray-500" />
                       <span className="text-sm font-medium text-gray-900">
-                        {new Date(note.createdAt).toLocaleDateString('en-US', {
+                        {note.createdAt ? new Date(note.createdAt).toLocaleDateString('en-US', {
                           year: 'numeric',
                           month: 'long',
                           day: 'numeric',
                           hour: '2-digit',
                           minute: '2-digit'
-                        })}
+                        }) : "Date unknown"}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2">
@@ -102,7 +102,7 @@ export default function VisitNotesPage() {
                   <div className="mt-3 pt-3 border-t border-gray-200">
                     <div className="flex justify-between items-center text-xs text-gray-500">
                       <span>Note ID: {note.id.slice(0, 8)}...</span>
-                      <span>Last updated: {new Date(note.createdAt).toLocaleDateString()}</span>
+                      <span>Last updated: {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : "Unknown"}</span>
                     </div>
                   </div>
                 </div>

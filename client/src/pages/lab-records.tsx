@@ -95,7 +95,7 @@ export default function LabRecordsPage() {
                           <div className="text-sm text-gray-600 mb-1">
                             {key.replace(/([A-Z])/g, ' $1').trim()}
                           </div>
-                          <div className="font-semibold">{String(value)}</div>
+                          <div className="font-semibold">{value ? String(value) : "N/A"}</div>
                         </div>
                       ))}
                     </div>
