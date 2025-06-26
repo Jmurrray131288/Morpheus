@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 10%, 3.9%);
+  --muted: hsl(240, 4.8%, 95.9%);
+  --muted-foreground: hsl(240, 3.8%, 46.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 10%, 3.9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 10%, 3.9%);
+  --border: hsl(240, 5.9%, 90%);
+  --input: hsl(240, 5.9%, 90%);
+  --primary: hsl(221.2, 83.2%, 53.3%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(142.1, 70.6%, 45.3%);
+  --secondary-foreground: hsl(355.7, 100%, 97.3%);
+  --accent: hsl(37.7, 92.1%, 50.2%);
+  --accent-foreground: hsl(26, 83.3%, 14.1%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(240, 5%, 64.9%);
+  --radius: 0.75rem;
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(221.2, 83.2%, 53.3%);
+  --primary-foreground: hsl(210, 40%, 98%);
+  --secondary: hsl(142.1, 70.6%, 45.3%);
+  --secondary-foreground: hsl(355.7, 100%, 97.3%);
+  --accent: hsl(37.7, 92.1%, 50.2%);
+  --accent-foreground: hsl(26, 83.3%, 14.1%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(210, 40%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+/* Medical UI specific styles */
+.medical-card {
+  @apply bg-white rounded-xl shadow-sm border border-gray-200;
+}
+
+.metric-card {
+  @apply medical-card p-6;
+}
+
+.status-active {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800;
+}
+
+.status-pending {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800;
+}
+
+.status-inactive {
+  @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800;
+}
+
+.health-section {
+  @apply medical-card p-6;
+}
+
+.medication-item {
+  @apply border border-gray-200 rounded-lg p-4;
+}
+
+.lab-result-item {
+  @apply border border-gray-200 rounded-lg p-4;
+}
+
+.visit-note-item {
+  @apply border-l-4 p-4 rounded-r-lg;
+}
+
+.visit-note-primary {
+  @apply visit-note-item border-primary bg-blue-50;
+}
+
+.visit-note-secondary {
+  @apply visit-note-item border-secondary bg-green-50;
+}
+
+.precision-card {
+  @apply border rounded-lg p-4;
+}
+
+.precision-genomic {
+  @apply precision-card bg-purple-50 border-purple-200;
+}
+
+.precision-lab {
+  @apply precision-card bg-indigo-50 border-indigo-200;
+}
+
+.treatment-card {
+  @apply border border-gray-200 rounded-lg p-4;
+}
+
+.treatment-peptide {
+  @apply bg-blue-50 p-3 rounded-lg;
+}
+
+.treatment-supplement {
+  @apply bg-green-50 p-3 rounded-lg;
+}
+
+.treatment-iv {
+  @apply bg-purple-50 p-3 rounded-lg;
+}
+
+.quick-action-btn {
+  @apply flex flex-col items-center p-4 border border-gray-200 rounded-lg transition-colors;
+}
+
+.quick-action-primary {
+  @apply quick-action-btn hover:border-primary hover:bg-blue-50;
+}
+
+.quick-action-secondary {
+  @apply quick-action-btn hover:border-secondary hover:bg-green-50;
+}
+
+.quick-action-accent {
+  @apply quick-action-btn hover:border-accent hover:bg-yellow-50;
+}
+
+.quick-action-purple {
+  @apply quick-action-btn hover:border-purple-500 hover:bg-purple-50;
+}
