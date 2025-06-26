@@ -32,18 +32,18 @@ export default function Sidebar() {
       {/* Navigation Menu */}
       <nav className="flex-1 p-4 space-y-2">
         {navigationItems.map((item, index) => (
-          <a
+          <Link
             key={index}
-            href="#"
+            href={item.path}
             className={`flex items-center px-3 py-2 text-sm font-medium rounded-lg ${
               item.active
                 ? "text-primary bg-blue-50"
                 : "text-gray-700 hover:bg-gray-100"
             }`}
           >
-            <i className={`${item.icon} w-5 h-5 mr-3`}></i>
+            <item.icon className="w-5 h-5 mr-3" />
             {item.label}
-          </a>
+          </Link>
         ))}
       </nav>
 
