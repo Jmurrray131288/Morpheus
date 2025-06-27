@@ -136,6 +136,8 @@ Changelog:
 - June 27, 2025: Removed manual date selector from body composition form and implemented automatic server-side timestamping for clinical accuracy - measurements are now timestamped exactly when entered
 - June 27, 2025: Added comprehensive body composition history modal with trend analysis - users can now view complete timeline of all past measurements with visual trend indicators showing progress over time
 - June 27, 2025: Implemented medication deletion functionality with confirmation dialogs and trash can icons for safe medication management
+- June 27, 2025: Created comprehensive medication discontinuation system with required reason documentation, staff initials tracking, and audit trail - includes edit modal with status change capabilities and discontinuation info display
+- June 27, 2025: Converted patients page from card layout to efficient table format for better scalability with 50+ patients - displays essential info in compact rows with quick access to patient profiles
 ```
 
 ## User Preferences
