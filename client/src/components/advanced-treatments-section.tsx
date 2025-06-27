@@ -1,6 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { PeptideEntry, SupplementEntry, IvTreatmentEntry } from "@shared/schema";
 
 interface AdvancedTreatmentsSectionProps {
@@ -8,6 +10,9 @@ interface AdvancedTreatmentsSectionProps {
 }
 
 export default function AdvancedTreatmentsSection({ patientId }: AdvancedTreatmentsSectionProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+
   const { data: peptides = [] } = useQuery<PeptideEntry[]>({
     queryKey: [`/api/patients/${patientId}/peptides`],
   });
@@ -18,6 +23,34 @@ export default function AdvancedTreatmentsSection({ patientId }: AdvancedTreatme
 
   const { data: ivTreatments = [] } = useQuery<IvTreatmentEntry[]>({
     queryKey: [`/api/patients/${patientId}/iv-treatments`],
+  });
+
+  // First create a medication entry, then create peptide linked to it
+  const addPeptideMutation = useMutation({
+    mutationFn: async () => {
+      // Create medication entry first
+      const medicationEntry = await apiRequest(`/api/patients/${patientId}/medication-entries`, "POST", {
+        patientId,
+        medicationType: "Peptide Therapy",
+      });
+      
+      // Then create peptide linked to that entry
+      return await apiRequest(`/api/patients/${patientId}/peptides`, "POST", {
+        medicationEntryId: medicationEntry.id,
+        name: "BPC-157",
+        dosage: "250mcg",
+        frequency: "Daily",
+        startDate: new Date().toISOString().split('T')[0],
+        status: "Active",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/peptides`] });
+      toast({
+        title: "Success",
+        description: "Sample peptide therapy added",
+      });
+    },
   });
 
   return (

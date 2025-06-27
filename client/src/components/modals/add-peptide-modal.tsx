@@ -35,10 +35,7 @@ export default function AddPeptideModal({
 
   const mutation = useMutation({
     mutationFn: async (data: InsertPeptideEntry) => {
-      await apiRequest(`/api/patients/${patientId}/peptides`, {
-        method: "POST",
-        body: JSON.stringify(data),
-      });
+      return await apiRequest(`/api/patients/${patientId}/peptides`, "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/peptides`] });

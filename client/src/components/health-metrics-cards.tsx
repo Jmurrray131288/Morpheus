@@ -1,4 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import type { BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry, LabRecord } from "@shared/schema";
 
 interface HealthMetricsCardsProps {
@@ -6,6 +10,8 @@ interface HealthMetricsCardsProps {
 }
 
 export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProps) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   const { data: bodyComposition = [] } = useQuery<BodyCompositionEntry[]>({
     queryKey: [`/api/patients/${patientId}/body-composition`],
   });
@@ -30,6 +36,29 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
   const completedLabs = labRecords.filter(record => record.panels).length;
   const lastLabUpdate = labRecords[0]?.recordDate;
 
+  // Mutation to add sample body composition data
+  const addBodyCompositionMutation = useMutation({
+    mutationFn: async () => {
+      return await apiRequest(`/api/patients/${patientId}/body-composition`, "POST", {
+        patientId,
+        height: 175,
+        weight: 70.5,
+        bmi: 23.0,
+        bodyFatPercentage: 15.2,
+        skeletalMuscle: 42.3,
+        visceralFat: 8,
+        entryDate: new Date(),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/body-composition`] });
+      toast({
+        title: "Success",
+        description: "Body composition data added",
+      });
+    },
+  });
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       {/* Body Composition */}
@@ -52,6 +81,20 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
             <span className="font-medium">{latestBodyComp?.skeletalMuscle ? `${latestBodyComp.skeletalMuscle.toFixed(1)}%` : "N/A"}</span>
           </div>
         </div>
+        {bodyComposition.length === 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-200">
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => addBodyCompositionMutation.mutate()}
+              disabled={addBodyCompositionMutation.isPending}
+              className="w-full"
+            >
+              <Plus className="w-3 h-3 mr-1" />
+              {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Cardiovascular */}
