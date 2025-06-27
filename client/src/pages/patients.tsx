@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Phone, Calendar, ArrowLeft } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Edit, Trash2, Phone, Calendar, ArrowLeft, Users, Activity, TrendingUp, Pill, TestTube, Heart } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import AddPatientModal from "@/components/modals/add-patient-modal";
 import EditPatientModal from "@/components/modals/edit-patient-modal";
 import PatientSelector from "@/components/patient-selector";
@@ -16,6 +18,8 @@ import WeightMuscleTrends from "@/components/weight-muscle-trends";
 import type { Patient } from "@shared/schema";
 import { calculateAge } from "@/lib/medical-utils";
 
+const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4'];
+
 export default function PatientsPage() {
   const params = useParams();
   const [location, setLocation] = useLocation();
@@ -25,6 +29,40 @@ export default function PatientsPage() {
   const { data: patients = [], isLoading } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
   });
+
+  // Calculate practice analytics for dashboard
+  const analytics = patients.length > 0 ? {
+    totalPatients: patients.length,
+    averageAge: patients.filter(p => p.dateOfBirth).length > 0 
+      ? Math.round(patients.filter(p => p.dateOfBirth).reduce((sum, p) => sum + calculateAge(p.dateOfBirth!), 0) / patients.filter(p => p.dateOfBirth).length)
+      : 0,
+    genderBreakdown: patients.reduce((acc: any, patient) => {
+      const gender = patient.gender || 'Unknown';
+      acc[gender] = (acc[gender] || 0) + 1;
+      return acc;
+    }, {}),
+    ageGroups: patients.reduce((acc: any, patient) => {
+      if (patient.dateOfBirth) {
+        const age = calculateAge(patient.dateOfBirth);
+        const group = age < 25 ? '18-24' : age < 45 ? '25-44' : age < 65 ? '45-64' : '65+';
+        acc[group] = (acc[group] || 0) + 1;
+      }
+      return acc;
+    }, {}),
+    recentSignups: patients.filter(p => {
+      if (!p.createdAt) return false;
+      const createdDate = new Date(p.createdAt);
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      return createdDate > thirtyDaysAgo;
+    }).length,
+  } : null;
+
+  const genderData = analytics ? 
+    Object.entries(analytics.genderBreakdown).map(([gender, count]) => ({ name: gender, value: count })) : [];
+
+  const ageGroupData = analytics ?
+    Object.entries(analytics.ageGroups).map(([group, count]) => ({ name: group, value: count })) : [];
 
   // If we have a patient ID in the URL, show the patient profile
   if (params.id) {
@@ -151,6 +189,122 @@ export default function PatientsPage() {
           Add Patient
         </Button>
       </div>
+
+      {/* Practice Analytics Dashboard */}
+      {analytics && (
+        <div className="mb-8 space-y-6">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-gray-900">Practice Overview</h2>
+            <div className="text-sm text-gray-500">
+              Updated: {new Date().toLocaleDateString()}
+            </div>
+          </div>
+
+          {/* Key Metrics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Total Patients</CardTitle>
+                <Users className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">{analytics.totalPatients}</div>
+                <p className="text-xs text-green-600">
+                  {analytics.recentSignups} new this month
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Average Age</CardTitle>
+                <Activity className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">{analytics.averageAge}</div>
+                <p className="text-xs text-blue-600">years old</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Patient Growth</CardTitle>
+                <TrendingUp className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-gray-900">
+                  {analytics.recentSignups > 0 ? '+' : ''}{analytics.recentSignups}
+                </div>
+                <p className="text-xs text-purple-600">last 30 days</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-gray-600">Demographics</CardTitle>
+                <Users className="h-4 w-4 text-orange-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-sm text-gray-900">
+                  {Object.entries(analytics.genderBreakdown).map(([gender, count]) => (
+                    <div key={gender} className="flex justify-between">
+                      <span>{gender}:</span>
+                      <span className="font-medium">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Age Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <BarChart data={ageGroupData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3B82F6" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg font-semibold">Gender Breakdown</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={genderData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={60}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {genderData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      )}
 
       {patients.length === 0 ? (
         <div className="text-center py-12">
