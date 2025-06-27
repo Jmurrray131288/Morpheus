@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import AddBodyCompositionModal from "@/components/modals/add-body-composition-modal";
 import type { BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry, LabRecord } from "@shared/schema";
 
 interface HealthMetricsCardsProps {
@@ -63,17 +64,20 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
     <div className="medical-card p-4 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Health Metrics</h3>
-        {bodyComposition.length === 0 && (
-          <Button 
-            size="sm" 
-            variant="outline" 
-            onClick={() => addBodyCompositionMutation.mutate()}
-            disabled={addBodyCompositionMutation.isPending}
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
-          </Button>
-        )}
+        <div className="flex space-x-2">
+          <AddBodyCompositionModal patientId={patientId} />
+          {bodyComposition.length === 0 && (
+            <Button 
+              size="sm" 
+              variant="outline" 
+              onClick={() => addBodyCompositionMutation.mutate()}
+              disabled={addBodyCompositionMutation.isPending}
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto">
