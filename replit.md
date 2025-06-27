@@ -134,6 +134,8 @@ Changelog:
 - June 27, 2025: Added comprehensive weight and muscle mass trends chart to patient records with dual-axis visualization, trend analysis, and progress tracking capabilities
 - June 27, 2025: Created functional body composition entry form with US measurements (height in inches, weight in pounds) and automatic BMI calculation - replaced confusing dual-button interface with single clean form
 - June 27, 2025: Removed manual date selector from body composition form and implemented automatic server-side timestamping for clinical accuracy - measurements are now timestamped exactly when entered
+- June 27, 2025: Added comprehensive body composition history modal with trend analysis - users can now view complete timeline of all past measurements with visual trend indicators showing progress over time
+- June 27, 2025: Implemented medication deletion functionality with confirmation dialogs and trash can icons for safe medication management
 ```
 
 ## User Preferences
