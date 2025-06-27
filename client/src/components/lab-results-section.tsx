@@ -48,42 +48,61 @@ export default function LabResultsSection({ patientId }: LabResultsSectionProps)
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {labRecords.map((record) => (
-            <div key={record.id} className="lab-result-item">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-medium text-gray-900">Lab Record</h4>
-                <span className="text-xs text-gray-500">
-                  {new Date(record.recordDate).toLocaleDateString()}
-                </span>
-              </div>
-              
-              {record.panels && typeof record.panels === 'object' && (
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {Object.entries(record.panels as Record<string, any>).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-gray-600 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                      <span className="font-medium">{String(value)}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-              
-              <div className="mt-3 flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-primary hover:text-blue-700 text-xs font-medium"
-                >
-                  <FileText className="w-3 h-3 mr-1" />
-                  View Details
-                </Button>
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {record.panels ? "Complete" : "Pending"}
-                </span>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 font-medium text-gray-700">Date</th>
+                <th className="text-left py-2 font-medium text-gray-700">Test Results</th>
+                <th className="text-left py-2 font-medium text-gray-700">Status</th>
+                <th className="text-left py-2 font-medium text-gray-700">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {labRecords.map((record) => (
+                <tr key={record.id} className="hover:bg-gray-50">
+                  <td className="py-3 text-gray-600">
+                    {new Date(record.recordDate).toLocaleDateString()}
+                  </td>
+                  <td className="py-3">
+                    {record.panels && typeof record.panels === 'object' ? (
+                      <div className="text-sm">
+                        {Object.entries(record.panels as Record<string, any>).slice(0, 2).map(([key, value]) => (
+                          <div key={key} className="text-gray-700">
+                            {key.replace(/([A-Z])/g, ' $1').trim()}: {String(value)}
+                          </div>
+                        ))}
+                        {Object.keys(record.panels as Record<string, any>).length > 2 && (
+                          <div className="text-gray-500 text-xs">
+                            +{Object.keys(record.panels as Record<string, any>).length - 2} more
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">No results available</span>
+                    )}
+                  </td>
+                  <td className="py-3">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      record.panels ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {record.panels ? "Complete" : "Pending"}
+                    </span>
+                  </td>
+                  <td className="py-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-700 text-xs"
+                    >
+                      <FileText className="w-3 h-3 mr-1" />
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

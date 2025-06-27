@@ -60,117 +60,103 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
   });
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      {/* Body Composition */}
-      <div className="metric-card">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900">Body Composition</h4>
-          <i className="fas fa-weight text-secondary"></i>
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">BMI</span>
-            <span className="font-medium">{latestBodyComp?.bmi?.toFixed(1) || "N/A"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Body Fat</span>
-            <span className="font-medium">{latestBodyComp?.bodyFatPercentage ? `${latestBodyComp.bodyFatPercentage.toFixed(1)}%` : "N/A"}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Muscle Mass</span>
-            <span className="font-medium">{latestBodyComp?.skeletalMuscle ? `${latestBodyComp.skeletalMuscle.toFixed(1)}%` : "N/A"}</span>
-          </div>
-        </div>
+    <div className="medical-card p-4 mb-6">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-lg font-semibold text-gray-900">Health Metrics</h3>
         {bodyComposition.length === 0 && (
-          <div className="mt-3 pt-3 border-t border-gray-200">
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => addBodyCompositionMutation.mutate()}
-              disabled={addBodyCompositionMutation.isPending}
-              className="w-full"
-            >
-              <Plus className="w-3 h-3 mr-1" />
-              {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
-            </Button>
-          </div>
+          <Button 
+            size="sm" 
+            variant="outline" 
+            onClick={() => addBodyCompositionMutation.mutate()}
+            disabled={addBodyCompositionMutation.isPending}
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
+          </Button>
         )}
       </div>
 
-      {/* Cardiovascular */}
-      <div className="metric-card">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900">Cardiovascular</h4>
-          <i className="fas fa-heartbeat text-red-500"></i>
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Blood Pressure</span>
-            <span className="font-medium">
-              {latestCardio?.bloodPressure ? "Recorded" : "N/A"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Cholesterol</span>
-            <span className="font-medium">
-              {latestCardio?.lipids ? "Recorded" : "N/A"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Heart Rate</span>
-            <span className="font-medium">N/A</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Metabolic Health */}
-      <div className="metric-card">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900">Metabolic Health</h4>
-          <i className="fas fa-chart-line text-accent"></i>
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Glucose</span>
-            <span className="font-medium">
-              {latestMetabolic?.glucoseMetrics ? "Recorded" : "N/A"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">HbA1c</span>
-            <span className="font-medium">
-              {latestMetabolic?.metabolicMarkers ? "Recorded" : "N/A"}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Insulin</span>
-            <span className="font-medium">N/A</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Lab Status */}
-      <div className="metric-card">
-        <div className="flex items-center justify-between mb-4">
-          <h4 className="font-semibold text-gray-900">Lab Status</h4>
-          <i className="fas fa-flask text-purple-500"></i>
-        </div>
-        <div className="space-y-2">
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Pending Tests</span>
-            <span className="font-medium text-accent">{pendingLabs}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Completed</span>
-            <span className="font-medium text-secondary">{completedLabs}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-sm text-gray-600">Last Updated</span>
-            <span className="font-medium">
-              {lastLabUpdate ? new Date(lastLabUpdate).toLocaleDateString() : "N/A"}
-            </span>
-          </div>
-        </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-200">
+              <th className="text-left py-2 font-medium text-gray-700">Category</th>
+              <th className="text-left py-2 font-medium text-gray-700">Key Metrics</th>
+              <th className="text-left py-2 font-medium text-gray-700">Last Updated</th>
+              <th className="text-left py-2 font-medium text-gray-700">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            <tr className="hover:bg-gray-50">
+              <td className="py-3 font-medium text-blue-700">Body Composition</td>
+              <td className="py-3">
+                {latestBodyComp ? (
+                  <span>BMI: {latestBodyComp.bmi?.toFixed(1)} • Weight: {latestBodyComp.weight}kg • Body Fat: {latestBodyComp.bodyFatPercentage?.toFixed(1)}%</span>
+                ) : (
+                  <span className="text-gray-500">No data available</span>
+                )}
+              </td>
+              <td className="py-3 text-gray-600">
+                {latestBodyComp ? new Date(latestBodyComp.entryDate).toLocaleDateString() : "—"}
+              </td>
+              <td className="py-3">
+                <span className={`px-2 py-1 rounded-full text-xs ${latestBodyComp ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                  {latestBodyComp ? 'Current' : 'Pending'}
+                </span>
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-50">
+              <td className="py-3 font-medium text-red-700">Cardiovascular</td>
+              <td className="py-3">
+                {latestCardio ? (
+                  <span>BP: {latestCardio.bloodPressure ? 'Recorded' : 'N/A'} • Cholesterol: {latestCardio.lipids ? 'Recorded' : 'N/A'}</span>
+                ) : (
+                  <span className="text-gray-500">No data available</span>
+                )}
+              </td>
+              <td className="py-3 text-gray-600">
+                {latestCardio ? new Date(latestCardio.entryDate).toLocaleDateString() : "—"}
+              </td>
+              <td className="py-3">
+                <span className={`px-2 py-1 rounded-full text-xs ${latestCardio ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                  {latestCardio ? 'Current' : 'Pending'}
+                </span>
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-50">
+              <td className="py-3 font-medium text-green-700">Metabolic Health</td>
+              <td className="py-3">
+                {latestMetabolic ? (
+                  <span>Glucose: {latestMetabolic.glucoseMetrics ? 'Recorded' : 'N/A'} • HbA1c: {latestMetabolic.metabolicMarkers ? 'Recorded' : 'N/A'}</span>
+                ) : (
+                  <span className="text-gray-500">No data available</span>
+                )}
+              </td>
+              <td className="py-3 text-gray-600">
+                {latestMetabolic ? new Date(latestMetabolic.entryDate).toLocaleDateString() : "—"}
+              </td>
+              <td className="py-3">
+                <span className={`px-2 py-1 rounded-full text-xs ${latestMetabolic ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                  {latestMetabolic ? 'Current' : 'Pending'}
+                </span>
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-50">
+              <td className="py-3 font-medium text-purple-700">Lab Records</td>
+              <td className="py-3">
+                <span>Pending: {pendingLabs} • Completed: {completedLabs}</span>
+              </td>
+              <td className="py-3 text-gray-600">
+                {lastLabUpdate ? new Date(lastLabUpdate).toLocaleDateString() : "—"}
+              </td>
+              <td className="py-3">
+                <span className={`px-2 py-1 rounded-full text-xs ${completedLabs > 0 ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                  {completedLabs > 0 ? 'Active' : 'None'}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   );

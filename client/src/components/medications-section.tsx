@@ -50,31 +50,43 @@ export default function MedicationsSection({ patientId, onAddMedication }: Medic
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {medications.map((medication) => (
-            <div key={medication.id} className="medication-item">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="font-medium text-gray-900">{medication.name}</h4>
-                <span className={medication.status === "Active" ? "status-active" : "status-inactive"}>
-                  {medication.status || "Unknown"}
-                </span>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                <div>
-                  <span className="font-medium">Dosage:</span> <span>{medication.dosage || "Not specified"}</span>
-                </div>
-                <div>
-                  <span className="font-medium">Frequency:</span> <span>{medication.frequency || "Not specified"}</span>
-                </div>
-                <div>
-                  <span className="font-medium">Started:</span> <span>{medication.startDate ? new Date(medication.startDate).toLocaleDateString() : "Not specified"}</span>
-                </div>
-                <div>
-                  <span className="font-medium">Strength:</span> <span>{medication.strength || "Not specified"}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 font-medium text-gray-700">Medication</th>
+                <th className="text-left py-2 font-medium text-gray-700">Dosage & Frequency</th>
+                <th className="text-left py-2 font-medium text-gray-700">Started</th>
+                <th className="text-left py-2 font-medium text-gray-700">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {medications.map((medication) => (
+                <tr key={medication.id} className="hover:bg-gray-50">
+                  <td className="py-3 font-medium text-gray-900">{medication.name}</td>
+                  <td className="py-3">
+                    <span>{medication.dosage || "Not specified"}</span>
+                    {medication.frequency && <span className="text-gray-500"> • {medication.frequency}</span>}
+                    {medication.strength && <span className="text-gray-500"> • {medication.strength}</span>}
+                  </td>
+                  <td className="py-3 text-gray-600">
+                    {medication.startDate ? new Date(medication.startDate).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="py-3">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      medication.status === "Active" 
+                        ? 'bg-green-100 text-green-800' 
+                        : medication.status === "Inactive"
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-600'
+                    }`}>
+                      {medication.status || "Unknown"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>

@@ -50,18 +50,29 @@ export default function VisitNotesSection({ patientId, onAddNote }: VisitNotesSe
           </Button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {visitNotes.map((note, index) => (
-            <div key={note.id} className={index % 2 === 0 ? "visit-note-primary" : "visit-note-secondary"}>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-900">
-                  {new Date(note.createdAt).toLocaleDateString()}
-                </span>
-                <span className="text-xs text-gray-500">Provider</span>
-              </div>
-              <p className="text-sm text-gray-700">{note.note}</p>
-            </div>
-          ))}
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-2 font-medium text-gray-700">Date</th>
+                <th className="text-left py-2 font-medium text-gray-700">Note</th>
+                <th className="text-left py-2 font-medium text-gray-700">Provider</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {visitNotes.map((note) => (
+                <tr key={note.id} className="hover:bg-gray-50">
+                  <td className="py-3 text-gray-600">
+                    {note.createdAt ? new Date(note.createdAt).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="py-3 text-gray-900 max-w-md">
+                    <div className="truncate">{note.note}</div>
+                  </td>
+                  <td className="py-3 text-gray-600">Provider</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
