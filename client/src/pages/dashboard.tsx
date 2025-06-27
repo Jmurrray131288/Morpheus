@@ -2,7 +2,8 @@ import { useState } from "react";
 import TodaysSchedule from "@/components/todays-schedule";
 import PriorityAlerts from "@/components/priority-alerts";
 import RecentActivity from "@/components/recent-activity";
-import QuickPatientSearch from "@/components/quick-patient-search";
+import QuickSearchBar from "@/components/quick-search-bar";
+import HealthMetricsCards from "@/components/health-metrics-cards";
 import AddPatientModal from "@/components/modals/add-patient-modal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -11,10 +12,15 @@ import type { Patient } from "@shared/schema";
 
 export default function Dashboard() {
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
 
   const { data: patients = [], isLoading: patientsLoading } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
   });
+
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+  };
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -55,19 +61,27 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="space-y-6">
+            {/* Patient Search Bar */}
+            <QuickSearchBar onPatientSelect={handlePatientSelect} />
+            
             {/* Priority Alerts - Full Width */}
             <PriorityAlerts />
             
             {/* Today's Schedule - Full Width */}
             <TodaysSchedule />
 
-            {/* Recent Activity and Patient Search */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RecentActivity />
-              <QuickPatientSearch />
-            </div>
+            {/* Recent Activity - Full Width */}
+            <RecentActivity />
 
-
+            {/* Selected Patient Health Metrics */}
+            {selectedPatient && (
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {selectedPatient.firstName} {selectedPatient.lastName} - Health Overview
+                </h3>
+                <HealthMetricsCards patientId={selectedPatient.id} />
+              </div>
+            )}
           </div>
         )}
       </main>
