@@ -29,6 +29,7 @@ export default function EditPatientModal({ patient }: EditPatientModalProps) {
 
   const updatePatientMutation = useMutation({
     mutationFn: async (data: any) => {
+      console.log("Updating patient with data:", data);
       return await apiRequest(`/api/patients/${patient.id}`, "PUT", data);
     },
     onSuccess: () => {
@@ -40,10 +41,11 @@ export default function EditPatientModal({ patient }: EditPatientModalProps) {
       });
       setIsOpen(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Patient update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update patient information",
+        description: error.message || "Failed to update patient information",
         variant: "destructive",
       });
     },

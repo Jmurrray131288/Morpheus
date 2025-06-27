@@ -56,11 +56,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/patients/:id", async (req, res) => {
     try {
+      console.log("Updating patient:", req.params.id, "with data:", req.body);
       const validatedData = insertPatientSchema.partial().parse(req.body);
+      console.log("Validated data:", validatedData);
       const patient = await storage.updatePatient(req.params.id, validatedData);
+      console.log("Updated patient:", patient);
       res.json(patient);
     } catch (error) {
       console.error("Error updating patient:", error);
+      console.error("Error details:", error.stack);
       res.status(400).json({ message: "Failed to update patient", error: error.message });
     }
   });
