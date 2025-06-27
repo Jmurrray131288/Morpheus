@@ -24,55 +24,64 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertBodyCompositionEntrySchema } from "@shared/schema";
+import { insertBodyCompositionEntrySchema, type InsertBodyCompositionEntry } from "@shared/schema";
 
 interface AddBodyCompositionModalProps {
   patientId: string;
 }
 
-const formSchema = z.object({
-  patientId: z.string(),
-  entryDate: z.string().min(1, "Entry date is required"),
-  height: z.number().min(0).optional(),
-  weight: z.number().min(0).optional(),
-  bmi: z.number().min(0).optional(),
-  bodyFatPercentage: z.number().min(0).optional(),
-  skeletalMuscle: z.number().min(0).optional(),
-  visceralFat: z.number().min(0).optional(),
-});
-
-type FormData = z.infer<typeof formSchema>;
+// Simplified form data for essential fields only
+type FormData = {
+  patientId: string;
+  entryDate: string;
+  heightInches: number;
+  weightPounds: number;
+  bodyFatPercentage: number;
+  skeletalMuscle: number;
+  visceralFat: number;
+  bmi?: number;
+};
 
 export default function AddBodyCompositionModal({ patientId }: AddBodyCompositionModalProps) {
   const [open, setOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const formSchema = z.object({
+    patientId: z.string(),
+    entryDate: z.string().min(1, "Entry date is required"),
+    heightInches: z.number().min(1, "Height is required"),
+    weightPounds: z.number().min(1, "Weight is required"),
+    bodyFatPercentage: z.number().min(0, "Body fat percentage is required"),
+    skeletalMuscle: z.number().min(0, "Skeletal muscle percentage is required"),
+    visceralFat: z.number().min(1, "Visceral fat rating is required"),
+    bmi: z.number().optional(),
+  });
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       patientId,
       entryDate: new Date().toISOString().split('T')[0],
-      height: undefined,
-      weight: undefined,
-      bmi: undefined,
-      bodyFatPercentage: undefined,
-      skeletalMuscle: undefined,
-      visceralFat: undefined,
+      heightInches: 0,
+      weightPounds: 0,
+      bodyFatPercentage: 0,
+      skeletalMuscle: 0,
+      visceralFat: 1, // Default to 1 since it's required
     },
   });
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const { height, weight, entryDate, ...rest } = data;
+      const { heightInches, weightPounds, entryDate, ...rest } = data;
       return await apiRequest(`/api/patients/${patientId}/body-composition`, "POST", {
         ...rest,
         entryDate: new Date(entryDate), // Convert string to Date
-        heightInches: height, // Store height in inches
-        weightPounds: weight, // Store weight in pounds
+        heightInches, // Store height in inches
+        weightPounds, // Store weight in pounds
         // Convert to metric for legacy fields if needed
-        height: height ? height * 2.54 : undefined, // Convert inches to cm
-        weight: weight ? weight * 0.453592 : undefined, // Convert lbs to kg
+        height: heightInches ? heightInches * 2.54 : null, // Convert inches to cm
+        weight: weightPounds ? weightPounds * 0.453592 : null, // Convert lbs to kg
       });
     },
     onSuccess: () => {
@@ -96,8 +105,8 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
   const onSubmit = (data: FormData) => {
     // Auto-calculate BMI if height and weight are provided (BMI = weight in lbs / (height in inches)^2 * 703)
-    if (data.height && data.weight && data.height > 0) {
-      data.bmi = Number(((data.weight / (data.height * data.height)) * 703).toFixed(1));
+    if (data.heightInches && data.weightPounds && data.heightInches > 0) {
+      data.bmi = Number(((data.weightPounds / (data.heightInches * data.heightInches)) * 703).toFixed(1));
     }
     mutation.mutate(data);
   };
@@ -136,7 +145,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
-                name="height"
+                name="heightInches"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Height (in)</FormLabel>
@@ -145,7 +154,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
                         type="number"
                         step="0.1"
                         value={field.value || ''}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : 0)}
                         onBlur={field.onBlur}
                         name={field.name}
                       />
@@ -157,7 +166,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
               <FormField
                 control={form.control}
-                name="weight"
+                name="weightPounds"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Weight (lbs)</FormLabel>
@@ -166,7 +175,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
                         type="number"
                         step="0.1"
                         value={field.value || ''}
-                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
+                        onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : 0)}
                         onBlur={field.onBlur}
                         name={field.name}
                       />
