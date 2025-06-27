@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Search, User, Calendar, Pill } from "lucide-react";
+import { Search, User, Calendar, Pill, ChevronLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
+import HealthMetricsCards from "@/components/health-metrics-cards";
 import type { Patient } from "@shared/schema";
 
 export default function QuickPatientSearch() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
   
   const { data: patients = [] } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
@@ -16,6 +18,74 @@ export default function QuickPatientSearch() {
     `${patient.firstName} ${patient.lastName}`.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.contactNumber?.includes(searchTerm)
   ).slice(0, 5);
+
+  const handlePatientSelect = (patient: Patient) => {
+    setSelectedPatient(patient);
+    setSearchTerm("");
+  };
+
+  const handleBackToSearch = () => {
+    setSelectedPatient(null);
+    setSearchTerm("");
+  };
+
+  if (selectedPatient) {
+    return (
+      <div className="medical-card p-6">
+        <div className="flex items-center mb-4">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleBackToSearch}
+            className="mr-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+          </Button>
+          <User className="w-5 h-5 mr-2 text-blue-500" />
+          <h3 className="text-lg font-semibold text-gray-900">
+            {selectedPatient.firstName} {selectedPatient.lastName}
+          </h3>
+        </div>
+        
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-500">Phone:</span>
+              <div className="font-medium">{selectedPatient.contactNumber || "Not provided"}</div>
+            </div>
+            <div>
+              <span className="text-gray-500">DOB:</span>
+              <div className="font-medium">
+                {selectedPatient.dateOfBirth ? new Date(selectedPatient.dateOfBirth).toLocaleDateString() : "Not provided"}
+              </div>
+            </div>
+            <div>
+              <span className="text-gray-500">Gender:</span>
+              <div className="font-medium">{selectedPatient.gender || "Not provided"}</div>
+            </div>
+          </div>
+          
+          <div className="flex space-x-2 pt-2">
+            <Button variant="outline" size="sm">
+              <Calendar className="w-4 h-4 mr-1" />
+              Schedule
+            </Button>
+            <Button variant="outline" size="sm">
+              <Pill className="w-4 h-4 mr-1" />
+              Medications
+            </Button>
+            <Button variant="default" size="sm">
+              Full Record
+            </Button>
+          </div>
+        </div>
+        
+        <div className="mt-6">
+          <HealthMetricsCards patientId={selectedPatient.id} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="medical-card p-6">
@@ -39,7 +109,8 @@ export default function QuickPatientSearch() {
           {filteredPatients.map((patient) => (
             <div 
               key={patient.id} 
-              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border"
+              className="flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 border cursor-pointer"
+              onClick={() => handlePatientSelect(patient)}
             >
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">

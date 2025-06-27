@@ -3,8 +3,6 @@ import TodaysSchedule from "@/components/todays-schedule";
 import PriorityAlerts from "@/components/priority-alerts";
 import RecentActivity from "@/components/recent-activity";
 import QuickPatientSearch from "@/components/quick-patient-search";
-import HealthMetricsCards from "@/components/health-metrics-cards";
-import PatientSelector from "@/components/patient-selector";
 import AddPatientModal from "@/components/modals/add-patient-modal";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -12,19 +10,11 @@ import { useQuery } from "@tanstack/react-query";
 import type { Patient } from "@shared/schema";
 
 export default function Dashboard() {
-  const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
 
   const { data: patients = [], isLoading: patientsLoading } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
   });
-
-  const selectedPatient = patients.find(p => p.id === selectedPatientId);
-
-  // Auto-select first patient if none selected
-  if (!selectedPatientId && patients.length > 0) {
-    setSelectedPatientId(patients[0].id);
-  }
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -77,19 +67,7 @@ export default function Dashboard() {
               <QuickPatientSearch />
             </div>
 
-            {/* Bottom Section - Quick Patient Overview */}
-            <div className="space-y-6">
-              <PatientSelector
-                patients={patients}
-                selectedPatientId={selectedPatientId}
-                onPatientSelect={setSelectedPatientId}
-                selectedPatient={selectedPatient}
-              />
 
-              {selectedPatient && (
-                <HealthMetricsCards patientId={selectedPatient.id} />
-              )}
-            </div>
           </div>
         )}
       </main>
