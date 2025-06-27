@@ -128,6 +128,7 @@ Changelog:
 - June 27, 2025: Redesigned dashboard to be doctor-focused with Today's Schedule, Priority Alerts, Recent Activity, and Quick Patient Search components arranged for optimal daily practice workflow
 - June 27, 2025: Implemented browser-bar style patient search with live suggestions and clear labeling for intuitive user experience
 - June 27, 2025: Added navigation from today's schedule to patient profiles - clicking "View" now takes you directly to the patient's full medical record
+- June 27, 2025: Converted all patient profile sections from card-based to compact table rows - dramatically improved information density and space efficiency for clinical review
 ```
 
 ## User Preferences
