@@ -29,13 +29,15 @@ export default function Sidebar() {
         </div>
         
         {/* User Info */}
-        <div className="flex items-center space-x-3 pt-3 border-t border-gray-100">
-          <div className="w-7 h-7 bg-gray-400 rounded-full flex items-center justify-center">
-            <User className="w-3.5 h-3.5 text-white" />
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-gray-900">Dr. Sarah Chen</p>
-            <p className="text-xs text-gray-500">Healthcare Provider</p>
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center space-x-2">
+            <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+              <User className="w-3 h-3 text-white" />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-900">Dr. Sarah Chen</p>
+              <p className="text-xs text-gray-500">Healthcare Provider</p>
+            </div>
           </div>
           <button className="text-gray-400 hover:text-gray-600">
             <Settings className="w-4 h-4" />
