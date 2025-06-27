@@ -13,17 +13,13 @@ export default function AdvancedTreatmentsSection({ patientId }: AdvancedTreatme
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: peptides = [] } = useQuery<PeptideEntry[]>({
-    queryKey: [`/api/patients/${patientId}/peptides`],
+  const { data: profileData } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
 
-  const { data: supplements = [] } = useQuery<SupplementEntry[]>({
-    queryKey: [`/api/patients/${patientId}/supplements`],
-  });
-
-  const { data: ivTreatments = [] } = useQuery<IvTreatmentEntry[]>({
-    queryKey: [`/api/patients/${patientId}/iv-treatments`],
-  });
+  const peptides = profileData?.peptides || [];
+  const supplements = profileData?.supplements || [];
+  const ivTreatments = profileData?.ivTreatments || [];
 
   // First create a medication entry, then create peptide linked to it
   const addPeptideMutation = useMutation({

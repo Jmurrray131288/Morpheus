@@ -8,17 +8,13 @@ interface PrecisionMedicineSectionProps {
 }
 
 export default function PrecisionMedicineSection({ patientId }: PrecisionMedicineSectionProps) {
-  const { data: genomicReports = [] } = useQuery<GenomicReport[]>({
-    queryKey: [`/api/patients/${patientId}/genomic-reports`],
+  const { data: profileData } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
 
-  const { data: precisionLabReports = [] } = useQuery<PrecisionLabReport[]>({
-    queryKey: [`/api/patients/${patientId}/precision-lab-reports`],
-  });
-
-  const { data: precisionTests = [] } = useQuery<PrecisionTest[]>({
-    queryKey: [`/api/patients/${patientId}/precision-tests`],
-  });
+  const genomicReports = profileData?.genomicReports || [];
+  const precisionLabReports = profileData?.precisionLabReports || [];
+  const precisionTests = profileData?.precisionTests || [];
 
   const latestGenomic = genomicReports[0];
   const latestPrecisionLab = precisionLabReports[0];

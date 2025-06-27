@@ -9,9 +9,11 @@ interface VisitNotesSectionProps {
 }
 
 export default function VisitNotesSection({ patientId, onAddNote }: VisitNotesSectionProps) {
-  const { data: visitNotes = [], isLoading } = useQuery<VisitNote[]>({
-    queryKey: [`/api/patients/${patientId}/visit-notes`],
+  const { data: profileData, isLoading } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
+
+  const visitNotes = profileData?.visitNotes || [];
 
   if (isLoading) {
     return (
