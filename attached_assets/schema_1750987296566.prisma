@@ -1,0 +1,183 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Patient {
+  id                    String                 @id @default(uuid())
+  firstName             String
+  lastName              String
+  dateOfBirth           DateTime?
+  gender                String?
+  contactNumber         String?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  medicationEntries     MedicationEntry[]
+  prescribedMedications PrescribedMedication[]
+  visitNotes            VisitNote[]
+}
+
+model MedicationEntry {
+  id                   String                @id @default(uuid())
+  patientId            String
+  timestamp            DateTime              @default(now())
+
+  patient              Patient               @relation(fields: [patientId], references: [id])
+  prescribedMedications PrescribedMedication[]
+}
+
+model PrescribedMedication {
+  id                 String            @id @default(uuid())
+  medicationEntryId  String
+  patientId          String
+  name               String
+  strength           String
+  dosage             String
+  frequency          String
+  startDate          DateTime?
+  status             String?
+
+  medicationEntry    MedicationEntry  @relation(fields: [medicationEntryId], references: [id])
+  patient            Patient          @relation(fields: [patientId], references: [id])
+}
+
+model VisitNote {
+  id         String   @id @default(uuid())
+  patientId  String
+  note       String
+  createdAt  DateTime @default(now())
+
+  patient    Patient  @relation(fields: [patientId], references: [id])
+}
+
+model BodyCompositionEntry {
+  id                  String   @id
+  patientId           String
+  patient             Patient  @relation(fields: [patientId], references: [id])
+  entryDate           DateTime
+  height              Float?
+  heightInches        Float?
+  weight              Float?
+  weightPounds        Float?
+  bmi                 Float?
+  bmr                 Int?
+  tdee                Int?
+  activityLevel       String?
+  bodyFatPercentage   Float?
+  totalBodyFat        Float?
+  skeletalMuscle      Float?
+  visceralFat         Float?
+  vo2Max              Float?
+  notes               String?
+  sleep               Json?
+  nutrition           Json?
+  timestamp           DateTime @default(now())
+}
+
+model CardiovascularHealthEntry {
+  id               String   @id
+  patientId        String
+  patient          Patient  @relation(fields: [patientId], references: [id])
+  entryDate        DateTime
+  lipids           Json?
+  bloodPressure    Json?
+  inflammation     Json?
+  otherMarkers     Json?
+  riskFactors      Json?
+  medications      Json?
+  interventions    Json?
+  timestamp        DateTime @default(now())
+}
+model MetabolicHealthEntry {
+  id                String   @id
+  patientId         String
+  patient           Patient  @relation(fields: [patientId], references: [id])
+  entryDate         DateTime
+  glucoseMetrics    Json?
+  metabolicMarkers  Json?
+  weightManagement  Json?
+  glp1Therapy       Json?
+  interventions     Json?
+  timestamp         DateTime @default(now())
+}
+
+model LabRecord {
+  id         String   @id @default(cuid())
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  recordDate DateTime
+  panels     Json?
+  pdfReports Json?
+  timestamp  DateTime @default(now())
+}
+
+model PeptideEntry {
+  id                 String   @id
+  medicationEntryId  String
+  medicationEntry    MedicationEntry @relation(fields: [medicationEntryId], references: [id])
+  name               String?
+  dosage             String?
+  frequency          String?
+  startDate          DateTime?
+  status             String?
+}
+
+model OtherMedicationEntry {
+  id                 String   @id
+  medicationEntryId  String
+  medicationEntry    MedicationEntry @relation(fields: [medicationEntryId], references: [id])
+  name               String?
+  details            Json?
+}
+
+model IVTreatmentEntry {
+  id                 String   @id
+  medicationEntryId  String
+  medicationEntry    MedicationEntry @relation(fields: [medicationEntryId], references: [id])
+  name               String?
+  components         Json?
+}
+
+model SupplementEntry {
+  id                 String   @id
+  medicationEntryId  String
+  medicationEntry    MedicationEntry @relation(fields: [medicationEntryId], references: [id])
+  name               String?
+  dosage             String?
+  details            Json?
+}
+
+// 8) Precision medicine
+model GenomicReport {
+  id         String   @id
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  reportDate DateTime?
+  reportData Json?
+  timestamp  DateTime @default(now())
+}
+
+model PrecisionLabReport {
+  id         String   @id
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  reportDate DateTime?
+  reportData Json?
+  timestamp  DateTime @default(now())
+}
+
+model PrecisionTest {
+  id         String   @id
+  patientId  String
+  patient    Patient  @relation(fields: [patientId], references: [id])
+  testDate   DateTime?
+  testType   String?
+  testResult Json?
+  timestamp  DateTime @default(now())
+}
+
