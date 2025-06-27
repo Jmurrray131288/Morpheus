@@ -70,7 +70,19 @@ export default function AdvancedTreatmentsSection({ patientId }: AdvancedTreatme
           </div>
           <div className="space-y-3">
             {peptides.length === 0 ? (
-              <p className="text-sm text-gray-500">No peptide treatments</p>
+              <div className="space-y-3">
+                <p className="text-sm text-gray-500">No peptide treatments</p>
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  onClick={() => addPeptideMutation.mutate()}
+                  disabled={addPeptideMutation.isPending}
+                  className="w-full"
+                >
+                  <Plus className="w-3 h-3 mr-1" />
+                  {addPeptideMutation.isPending ? "Adding..." : "Add Sample Data"}
+                </Button>
+              </div>
             ) : (
               peptides.map((peptide) => (
                 <div key={peptide.id} className="treatment-peptide">
