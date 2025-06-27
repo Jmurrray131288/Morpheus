@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -15,41 +17,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertVisitNoteSchema, type InsertVisitNote } from "@shared/schema";
-import { z } from "zod";
 
-const visitNoteFormSchema = insertVisitNoteSchema.omit({
-  patientId: true,
+const addVisitNoteSchema = z.object({
+  note: z.string().min(1, "Visit note cannot be empty"),
 });
 
-type VisitNoteFormData = z.infer<typeof visitNoteFormSchema>;
+type AddVisitNoteForm = z.infer<typeof addVisitNoteSchema>;
 
 interface AddVisitNoteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   patientId: string;
+  patientName?: string;
 }
 
-export default function AddVisitNoteModal({ open, onOpenChange, patientId }: AddVisitNoteModalProps) {
+export default function AddVisitNoteModal({
+  open,
+  onOpenChange,
+  patientId,
+  patientName,
+}: AddVisitNoteModalProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const form = useForm<VisitNoteFormData>({
-    resolver: zodResolver(visitNoteFormSchema),
+  const form = useForm<AddVisitNoteForm>({
+    resolver: zodResolver(addVisitNoteSchema),
     defaultValues: {
       note: "",
     },
   });
 
   const createVisitNoteMutation = useMutation({
-    mutationFn: async (data: VisitNoteFormData) => {
-      await apiRequest("POST", `/api/patients/${patientId}/visit-notes`, data);
+    mutationFn: async (data: AddVisitNoteForm) => {
+      return await apiRequest(`/api/patients/${patientId}/visit-notes`, "POST", {
+        patientId,
+        note: data.note,
+      });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/profile`] });
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/visit-notes`] });
       toast({
         title: "Success",
@@ -61,25 +71,28 @@ export default function AddVisitNoteModal({ open, onOpenChange, patientId }: Add
     onError: (error) => {
       toast({
         title: "Error",
-        description: error.message,
+        description: "Failed to add visit note. Please try again.",
         variant: "destructive",
       });
+      console.error("Failed to add visit note:", error);
     },
   });
 
-  const onSubmit = (data: VisitNoteFormData) => {
+  const onSubmit = (data: AddVisitNoteForm) => {
     createVisitNoteMutation.mutate(data);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Add Visit Note</DialogTitle>
+          <DialogTitle>
+            Add Visit Note {patientName && `for ${patientName}`}
+          </DialogTitle>
         </DialogHeader>
-        
+
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="note"
@@ -88,9 +101,9 @@ export default function AddVisitNoteModal({ open, onOpenChange, patientId }: Add
                   <FormLabel>Visit Note</FormLabel>
                   <FormControl>
                     <Textarea
+                      placeholder="Enter visit notes, observations, treatment plans, or patient interactions..."
+                      className="min-h-[200px]"
                       {...field}
-                      placeholder="Enter visit notes, observations, treatment plans, patient feedback, etc."
-                      className="min-h-[120px]"
                     />
                   </FormControl>
                   <FormMessage />
@@ -98,7 +111,7 @@ export default function AddVisitNoteModal({ open, onOpenChange, patientId }: Add
               )}
             />
 
-            <div className="flex justify-end space-x-2 pt-4">
+            <div className="flex justify-end space-x-2">
               <Button
                 type="button"
                 variant="outline"

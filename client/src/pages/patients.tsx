@@ -7,6 +7,7 @@ import { Plus, Edit, Trash2, Phone, Calendar, ArrowLeft, Users, Activity, Trendi
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 import AddPatientModal from "@/components/modals/add-patient-modal";
 import EditPatientModal from "@/components/modals/edit-patient-modal";
+import AddVisitNoteModal from "@/components/modals/add-visit-note-modal";
 import PatientSelector from "@/components/patient-selector";
 import HealthMetricsCards from "@/components/health-metrics-cards";
 import MedicationsSection from "@/components/medications-section";
@@ -24,6 +25,7 @@ export default function PatientsPage() {
   const params = useParams();
   const [location, setLocation] = useLocation();
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   
   const { data: patients = [], isLoading } = useQuery<Patient[]>({
@@ -175,7 +177,7 @@ export default function PatientsPage() {
             <LabResultsSection patientId={patient.id} />
             <VisitNotesSection 
               patientId={patient.id} 
-              onAddNote={() => {}} 
+              onAddNote={() => setShowAddNoteModal(true)} 
             />
             <PrecisionMedicineSection patientId={patient.id} />
             <AdvancedTreatmentsSection patientId={patient.id} />
