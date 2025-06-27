@@ -94,17 +94,7 @@ export default function HealthMetricsCards({ patientId, patientName }: HealthMet
                 {latestBodyComp ? (
                   <div className="flex items-center justify-between">
                     <span>BMI: {latestBodyComp.bmi?.toFixed(1)} • Weight: {latestBodyComp.weightPounds?.toFixed(1) || latestBodyComp.weight?.toFixed(1)}lbs • Body Fat: {latestBodyComp.bodyFatPercentage?.toFixed(1)}% • Muscle: {latestBodyComp.skeletalMuscle?.toFixed(1)}%</span>
-                    <div className="flex items-center space-x-1">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowHistoryModal(true)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      >
-                        <History className="w-4 h-4" />
-                      </Button>
-                      <EditBodyCompositionModal patientId={patientId} entry={latestBodyComp} />
-                    </div>
+                    <EditBodyCompositionModal patientId={patientId} entry={latestBodyComp} />
                   </div>
                 ) : (
                   <span className="text-gray-500">No data available</span>
@@ -114,9 +104,21 @@ export default function HealthMetricsCards({ patientId, patientName }: HealthMet
                 {latestBodyComp ? new Date(latestBodyComp.entryDate).toLocaleDateString() : "—"}
               </td>
               <td className="py-3">
-                <span className={`px-2 py-1 rounded-full text-xs ${latestBodyComp ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-                  {latestBodyComp ? 'Current' : 'Pending'}
-                </span>
+                <div className="flex items-center space-x-2">
+                  <span className={`px-2 py-1 rounded-full text-xs ${latestBodyComp ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+                    {latestBodyComp ? 'Current' : 'Pending'}
+                  </span>
+                  {latestBodyComp && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowHistoryModal(true)}
+                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <History className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
               </td>
             </tr>
             <tr className="hover:bg-gray-50">
