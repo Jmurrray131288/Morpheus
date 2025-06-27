@@ -76,6 +76,7 @@ export interface IStorage {
   // Health metrics operations
   getPatientBodyComposition(patientId: string): Promise<BodyCompositionEntry[]>;
   createBodyCompositionEntry(entry: InsertBodyCompositionEntry): Promise<BodyCompositionEntry>;
+  updateBodyCompositionEntry(id: string, entry: Partial<InsertBodyCompositionEntry>): Promise<BodyCompositionEntry>;
   getPatientCardiovascularHealth(patientId: string): Promise<CardiovascularHealthEntry[]>;
   createCardiovascularHealthEntry(entry: InsertCardiovascularHealthEntry): Promise<CardiovascularHealthEntry>;
   getPatientMetabolicHealth(patientId: string): Promise<MetabolicHealthEntry[]>;
@@ -225,6 +226,15 @@ export class DatabaseStorage implements IStorage {
   async createBodyCompositionEntry(entry: InsertBodyCompositionEntry): Promise<BodyCompositionEntry> {
     const [newEntry] = await db.insert(bodyCompositionEntries).values(entry).returning();
     return newEntry;
+  }
+
+  async updateBodyCompositionEntry(id: string, entry: Partial<InsertBodyCompositionEntry>): Promise<BodyCompositionEntry> {
+    const [updatedEntry] = await db
+      .update(bodyCompositionEntries)
+      .set(entry)
+      .where(eq(bodyCompositionEntries.id, id))
+      .returning();
+    return updatedEntry;
   }
 
   async getPatientCardiovascularHealth(patientId: string): Promise<CardiovascularHealthEntry[]> {

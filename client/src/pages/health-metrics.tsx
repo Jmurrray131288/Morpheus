@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Activity, TrendingUp, Plus } from "lucide-react";
+import EditBodyCompositionModal from "@/components/modals/edit-body-composition-modal";
 import type { Patient, BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry } from "@shared/schema";
 
 export default function HealthMetricsPage() {
@@ -79,10 +80,16 @@ export default function HealthMetricsPage() {
             {bodyComposition.length === 0 ? (
               <p className="text-gray-500">No body composition data recorded</p>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {bodyComposition.slice(0, 1).map((entry) => (
-                  <div key={entry.id}>
-                    <div className="space-y-3">
+              <div className="space-y-4">
+                {bodyComposition.map((entry) => (
+                  <div key={entry.id} className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-sm text-gray-500">
+                        {new Date(entry.entryDate).toLocaleDateString()} at {new Date(entry.entryDate).toLocaleTimeString()}
+                      </span>
+                      <EditBodyCompositionModal patientId={selectedPatientId} entry={entry} />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="bg-green-50 p-3 rounded-lg">
                         <div className="text-sm text-gray-600">BMI</div>
                         <div className="text-lg font-semibold">{entry.bmi?.toFixed(1) || "N/A"}</div>
@@ -97,7 +104,7 @@ export default function HealthMetricsPage() {
                       </div>
                       <div className="bg-orange-50 p-3 rounded-lg">
                         <div className="text-sm text-gray-600">Weight</div>
-                        <div className="text-lg font-semibold">{entry.weight?.toFixed(1) || "N/A"} kg</div>
+                        <div className="text-lg font-semibold">{entry.weightPounds?.toFixed(1) || "N/A"} lbs</div>
                       </div>
                     </div>
                   </div>
