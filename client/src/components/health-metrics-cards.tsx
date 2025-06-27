@@ -1,19 +1,28 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit2 } from "lucide-react";
+import { Plus, Edit2, History } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import AddBodyCompositionModal from "@/components/modals/add-body-composition-modal";
 import EditBodyCompositionModal from "@/components/modals/edit-body-composition-modal";
+import BodyCompositionHistoryModal from "@/components/modals/body-composition-history-modal";
 import type { BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry, LabRecord } from "@shared/schema";
 
 interface HealthMetricsCardsProps {
   patientId: string;
+  patientName?: string;
 }
 
-export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProps) {
+export default function HealthMetricsCards({ patientId, patientName }: HealthMetricsCardsProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+  
+  const { data: patient } = useQuery({
+    queryKey: [`/api/patients/${patientId}`],
+    enabled: !patientName,
+  });
   const { data: bodyComposition = [] } = useQuery<BodyCompositionEntry[]>({
     queryKey: [`/api/patients/${patientId}/body-composition`],
   });
@@ -85,7 +94,17 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
                 {latestBodyComp ? (
                   <div className="flex items-center justify-between">
                     <span>BMI: {latestBodyComp.bmi?.toFixed(1)} • Weight: {latestBodyComp.weightPounds?.toFixed(1) || latestBodyComp.weight?.toFixed(1)}lbs • Body Fat: {latestBodyComp.bodyFatPercentage?.toFixed(1)}% • Muscle: {latestBodyComp.skeletalMuscle?.toFixed(1)}%</span>
-                    <EditBodyCompositionModal patientId={patientId} entry={latestBodyComp} />
+                    <div className="flex items-center space-x-1">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowHistoryModal(true)}
+                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <History className="w-4 h-4" />
+                      </Button>
+                      <EditBodyCompositionModal patientId={patientId} entry={latestBodyComp} />
+                    </div>
                   </div>
                 ) : (
                   <span className="text-gray-500">No data available</span>
