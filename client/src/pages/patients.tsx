@@ -241,18 +241,14 @@ export default function PatientsPage() {
 
             <Card>
               <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-gray-600">Demographics</CardTitle>
-                <Users className="h-4 w-4 text-orange-600" />
+                <CardTitle className="text-sm font-medium text-gray-600">Daily Capacity</CardTitle>
+                <Calendar className="h-4 w-4 text-orange-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-sm text-gray-900">
-                  {Object.entries(analytics.genderBreakdown).map(([gender, count]) => (
-                    <div key={gender} className="flex justify-between">
-                      <span>{gender}:</span>
-                      <span className="font-medium">{count}</span>
-                    </div>
-                  ))}
+                <div className="text-2xl font-bold text-gray-900">
+                  {Math.round(analytics.totalPatients / 30)}
                 </div>
+                <p className="text-xs text-orange-600">avg patients/day</p>
               </CardContent>
             </Card>
           </div>
