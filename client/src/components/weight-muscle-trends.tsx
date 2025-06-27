@@ -18,7 +18,7 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
     .sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime())
     .map((entry) => ({
       date: new Date(entry.entryDate).toLocaleDateString(),
-      weight: entry.weight,
+      weight: entry.weightPounds, // Use pounds instead of kg
       muscleMass: entry.skeletalMuscle,
       bmi: entry.bmi,
       bodyFat: entry.bodyFatPercentage,
@@ -81,11 +81,11 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
           <div className="text-center p-3 bg-blue-50 rounded-lg">
             <div className="text-sm text-gray-600">Current Weight</div>
             <div className="text-xl font-bold text-blue-700">
-              {latestData?.weight?.toFixed(1) || "N/A"} kg
+              {latestData?.weight?.toFixed(1) || "N/A"} lbs
             </div>
             <div className={`flex items-center justify-center space-x-1 text-sm ${getTrendColor(weightTrend.trend)}`}>
               {getTrendIcon(weightTrend.trend)}
-              <span>{Math.abs(weightTrend.change).toFixed(1)} kg</span>
+              <span>{Math.abs(weightTrend.change).toFixed(1)} lbs</span>
             </div>
           </div>
 
@@ -131,7 +131,7 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
                 yAxisId="weight"
                 orientation="left"
                 tick={{ fontSize: 12 }}
-                label={{ value: 'Weight (kg)', angle: -90, position: 'insideLeft' }}
+                label={{ value: 'Weight (lbs)', angle: -90, position: 'insideLeft' }}
               />
               <YAxis 
                 yAxisId="muscle"
@@ -142,7 +142,7 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
               <Tooltip 
                 labelFormatter={(label) => `Date: ${label}`}
                 formatter={(value, name) => [
-                  `${Number(value).toFixed(1)}${name === 'Weight' ? ' kg' : '%'}`,
+                  `${Number(value).toFixed(1)}${name === 'Weight' ? ' lbs' : '%'}`,
                   name
                 ]}
               />
