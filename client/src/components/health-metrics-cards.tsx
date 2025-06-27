@@ -172,6 +172,13 @@ export default function HealthMetricsCards({ patientId, patientName }: HealthMet
           </tbody>
         </table>
       </div>
+      
+      <BodyCompositionHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        entries={bodyComposition}
+        patientName={patientName || `${patient?.firstName} ${patient?.lastName}` || "Patient"}
+      />
     </div>
   );
 }
