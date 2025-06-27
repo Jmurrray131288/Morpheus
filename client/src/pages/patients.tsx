@@ -67,14 +67,34 @@ export default function PatientsPage() {
       <div className="flex-1">
         <div className="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 w-full py-6 mb-6">
           <div className="max-w-7xl mx-auto px-6">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                {patient.firstName} {patient.lastName}
-              </h1>
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span>{patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"}</span>
-                {patient.gender && <span>• {patient.gender}</span>}
-                {patient.contactNumber && <span>• {patient.contactNumber}</span>}
+            <div className="flex items-center space-x-6">
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center overflow-hidden">
+                  {patient.profileImageUrl ? (
+                    <img 
+                      src={patient.profileImageUrl} 
+                      alt={`${patient.firstName} ${patient.lastName}`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center">
+                      <span className="text-white text-2xl font-bold">
+                        {patient.firstName.charAt(0)}{patient.lastName.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {patient.firstName} {patient.lastName}
+                </h1>
+                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <span>{patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"}</span>
+                  {patient.gender && <span>• {patient.gender}</span>}
+                  {patient.contactNumber && <span>• {patient.contactNumber}</span>}
+                </div>
               </div>
             </div>
           </div>
