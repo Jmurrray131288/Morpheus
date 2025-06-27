@@ -1,13 +1,18 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Upload, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { LabRecord } from "@shared/schema";
+import UploadLabReportModal from "@/components/modals/upload-lab-report-modal";
 
 interface LabResultsSectionProps {
   patientId: string;
+  patientName?: string;
 }
 
-export default function LabResultsSection({ patientId }: LabResultsSectionProps) {
+export default function LabResultsSection({ patientId, patientName }: LabResultsSectionProps) {
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  
   const { data: profileData, isLoading } = useQuery({
     queryKey: [`/api/patients/${patientId}/profile`],
   });
@@ -35,6 +40,7 @@ export default function LabResultsSection({ patientId }: LabResultsSectionProps)
         <Button
           variant="ghost"
           className="text-primary hover:text-blue-700 text-sm font-medium"
+          onClick={() => setShowUploadModal(true)}
         >
           <Upload className="w-4 h-4 mr-1" />
           Upload Report
@@ -44,7 +50,7 @@ export default function LabResultsSection({ patientId }: LabResultsSectionProps)
       {labRecords.length === 0 ? (
         <div className="text-center py-8">
           <p className="text-gray-500 mb-4">No lab results recorded</p>
-          <Button variant="outline">
+          <Button variant="outline" onClick={() => setShowUploadModal(true)}>
             <Upload className="w-4 h-4 mr-2" />
             Upload First Report
           </Button>

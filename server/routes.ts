@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { upload, uploadLabReportFile } from "./fileUpload";
 import {
   insertPatientSchema,
   insertMedicationEntrySchema,
@@ -413,6 +414,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting lab record:", error);
       res.status(500).json({ message: "Failed to delete lab record" });
+    }
+  });
+
+  // File upload route for lab reports
+  app.post("/api/patients/:patientId/lab-records/upload", upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      const { patientId, recordDate, reportName, notes } = req.body;
+
+      if (!patientId || !recordDate || !reportName) {
+        return res.status(400).json({ message: "Missing required fields" });
+      }
+
+      // Upload file to cloud storage or local fallback
+      const fileData = await uploadLabReportFile(req.file, patientId, reportName);
+
+      // Create lab record in database
+      const validatedData = insertLabRecordSchema.parse({
+        patientId,
+        recordDate: new Date(recordDate),
+        pdfReports: {
+          fileName: fileData.fileName,
+          fileSize: fileData.fileSize,
+          fileType: fileData.fileType,
+          fileUrl: fileData.fileUrl,
+          fileKey: fileData.fileKey,
+          uploadDate: new Date().toISOString(),
+        },
+        panels: {
+          reportName,
+          notes: notes || null,
+        },
+      });
+
+      const labRecord = await storage.createLabRecord(validatedData);
+      res.status(201).json(labRecord);
+    } catch (error) {
+      console.error("Error uploading lab report:", error);
+      res.status(500).json({ message: "Failed to upload lab report", error: error.message });
     }
   });
 
