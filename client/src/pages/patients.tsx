@@ -11,6 +11,7 @@ import LabResultsSection from "@/components/lab-results-section";
 import VisitNotesSection from "@/components/visit-notes-section";
 import PrecisionMedicineSection from "@/components/precision-medicine-section";
 import AdvancedTreatmentsSection from "@/components/advanced-treatments-section";
+import WeightMuscleTrends from "@/components/weight-muscle-trends";
 import type { Patient } from "@shared/schema";
 import { calculateAge } from "@/lib/medical-utils";
 
@@ -103,6 +104,7 @@ export default function PatientsPage() {
         <div className="px-6">
           <div className="space-y-6">
             <HealthMetricsCards patientId={patient.id} />
+            <WeightMuscleTrends patientId={patient.id} />
             <MedicationsSection 
               patientId={patient.id} 
               onAddMedication={() => {}} 
