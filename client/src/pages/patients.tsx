@@ -65,34 +65,28 @@ export default function PatientsPage() {
 
     return (
       <div className="flex-1">
-        <div className="bg-white border-b border-gray-200 px-6 py-4 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <Button 
-              variant="ghost" 
-              onClick={() => setLocation("/patients")}
-              className="text-gray-600 hover:text-gray-800 px-2"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Patients
-            </Button>
-            
-            <PatientSelector
-              patients={patients}
-              selectedPatientId={patient.id}
-              onPatientSelect={(patientId) => setLocation(`/patients/${patientId}`)}
-              selectedPatient={patient}
-            />
-          </div>
-          
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-1">
-              {patient.firstName} {patient.lastName}
-            </h1>
-            <p className="text-sm text-gray-600">
-              {patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"}
-              {patient.gender && ` • ${patient.gender}`}
-              {patient.contactNumber && ` • ${patient.contactNumber}`}
-            </p>
+        <div className="bg-gradient-to-r from-blue-50 to-white border-b border-gray-200 w-full py-6 mb-6">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  {patient.firstName} {patient.lastName}
+                </h1>
+                <div className="flex items-center space-x-4 text-sm text-gray-600">
+                  <span>{patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"}</span>
+                  {patient.gender && <span>• {patient.gender}</span>}
+                  {patient.contactNumber && <span>• {patient.contactNumber}</span>}
+                  {patient.email && <span>• {patient.email}</span>}
+                </div>
+              </div>
+              
+              <PatientSelector
+                patients={patients}
+                selectedPatientId={patient.id}
+                onPatientSelect={(patientId) => setLocation(`/patients/${patientId}`)}
+                selectedPatient={patient}
+              />
+            </div>
           </div>
         </div>
         
