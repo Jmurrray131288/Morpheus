@@ -183,6 +183,13 @@ export default function PatientsPage() {
             <AdvancedTreatmentsSection patientId={patient.id} />
           </div>
         </div>
+
+        <AddVisitNoteModal
+          open={showAddNoteModal}
+          onOpenChange={setShowAddNoteModal}
+          patientId={patient.id}
+          patientName={`${patient.firstName} ${patient.lastName}`}
+        />
       </div>
     );
   }
