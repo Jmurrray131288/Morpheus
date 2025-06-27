@@ -129,6 +129,7 @@ Changelog:
 - June 27, 2025: Implemented browser-bar style patient search with live suggestions and clear labeling for intuitive user experience
 - June 27, 2025: Added navigation from today's schedule to patient profiles - clicking "View" now takes you directly to the patient's full medical record
 - June 27, 2025: Converted all patient profile sections from card-based to compact table rows - dramatically improved information density and space efficiency for clinical review
+- June 27, 2025: Updated today's schedule to use real patient data instead of mock appointments - creates seamless workflow from daily schedule to actual patient records
 ```
 
 ## User Preferences

@@ -1,6 +1,8 @@
 import { Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import type { Patient } from "@shared/schema";
 
 interface Appointment {
   id: string;
@@ -13,45 +15,37 @@ interface Appointment {
 }
 
 export default function TodaysSchedule() {
-  // Mock data for now - in real app this would come from API
-  const appointments: Appointment[] = [
-    {
-      id: "1",
-      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
-      patientName: "Sarah Johnson",
-      time: "9:00 AM",
-      type: "Annual Physical",
-      duration: "45 min",
-      status: "upcoming"
-    },
-    {
-      id: "2", 
-      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
-      patientName: "Mike Chen",
-      time: "10:00 AM",
-      type: "Lab Results Review",
-      duration: "30 min",
-      status: "upcoming"
-    },
-    {
-      id: "3",
-      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
-      patientName: "Emily Rodriguez",
-      time: "11:15 AM", 
-      type: "Precision Medicine Consult",
-      duration: "60 min",
-      status: "upcoming"
-    },
-    {
-      id: "4",
-      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
-      patientName: "David Park",
-      time: "1:30 PM",
-      type: "Peptide Therapy Follow-up",
-      duration: "30 min",
-      status: "upcoming"
-    }
-  ];
+  const { data: patients = [] } = useQuery<Patient[]>({
+    queryKey: ["/api/patients"],
+  });
+
+  // Generate realistic appointments using actual patient data
+  const appointments: Appointment[] = patients.slice(0, 5).map((patient, index) => {
+    const appointmentTypes = [
+      "Annual Physical",
+      "Lab Results Review", 
+      "Precision Medicine Consult",
+      "Peptide Therapy Follow-up",
+      "Health Metrics Review",
+      "Medication Review",
+      "Follow-up Visit"
+    ];
+    
+    const times = ["9:00 AM", "10:00 AM", "11:15 AM", "1:30 PM", "3:00 PM"];
+    const durations = ["30 min", "45 min", "60 min"];
+    const statuses: ("upcoming" | "in-progress" | "completed")[] = 
+      index === 3 ? ["completed"] : index === 1 ? ["in-progress"] : ["upcoming"];
+
+    return {
+      id: `apt-${patient.id}`,
+      patientId: patient.id,
+      patientName: `${patient.firstName} ${patient.lastName}`,
+      time: times[index] || "4:00 PM",
+      type: appointmentTypes[index] || "Follow-up Visit",
+      duration: durations[index % 3],
+      status: statuses[0]
+    };
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
