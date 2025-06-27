@@ -30,7 +30,7 @@ export default function EditPatientModal({ patient }: EditPatientModalProps) {
   const updatePatientMutation = useMutation({
     mutationFn: async (data: any) => {
       console.log("Updating patient with data:", data);
-      return await apiRequest(`/api/patients/${patient.id}`, "PUT", data);
+      return await apiRequest("PUT", `/api/patients/${patient.id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/patients"] });
