@@ -65,13 +65,13 @@ export default function Dashboard() {
           </div>
         ) : (
           <div className="space-y-6">
-            {/* Top Row - Schedule and Alerts */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <TodaysSchedule />
-              <PriorityAlerts />
-            </div>
+            {/* Priority Alerts - Full Width */}
+            <PriorityAlerts />
+            
+            {/* Today's Schedule - Full Width */}
+            <TodaysSchedule />
 
-            {/* Middle Row - Recent Activity and Patient Search */}
+            {/* Recent Activity and Patient Search */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <RecentActivity />
               <QuickPatientSearch />

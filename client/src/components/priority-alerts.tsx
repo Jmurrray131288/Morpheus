@@ -61,37 +61,37 @@ export default function PriorityAlerts() {
   };
 
   return (
-    <div className="medical-card p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 flex items-center">
-          <AlertTriangle className="w-5 h-5 mr-2 text-orange-500" />
+    <div className="medical-card p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-base font-semibold text-gray-900 flex items-center">
+          <AlertTriangle className="w-4 h-4 mr-2 text-orange-500" />
           Priority Alerts
         </h3>
-        <span className="text-sm text-gray-500">{alerts.length} active</span>
+        <span className="text-xs text-gray-500">{alerts.length} active</span>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-2">
         {alerts.map((alert) => (
           <div 
             key={alert.id}
-            className={`border-l-4 p-4 rounded-r-lg ${getAlertStyle(alert.type)}`}
+            className={`border-l-4 p-3 rounded-r-lg ${getAlertStyle(alert.type)}`}
           >
-            <div className="flex items-start justify-between">
-              <div className="flex items-start space-x-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2 flex-1">
                 {getAlertIcon(alert.type)}
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h4 className="font-medium text-gray-900">{alert.title}</h4>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center space-x-2">
+                    <h4 className="font-medium text-gray-900 text-sm truncate">{alert.title}</h4>
                     <span className="text-xs text-gray-500">• {alert.patientName}</span>
                   </div>
-                  <p className="text-sm text-gray-700 mb-2">{alert.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">{alert.timestamp}</span>
-                    <Button variant="outline" size="sm" className="text-xs">
-                      {alert.action}
-                    </Button>
-                  </div>
+                  <p className="text-xs text-gray-600 truncate">{alert.description}</p>
                 </div>
+              </div>
+              <div className="flex items-center space-x-2 ml-4">
+                <span className="text-xs text-gray-400">{alert.timestamp}</span>
+                <Button variant="outline" size="sm" className="text-xs px-2 py-1">
+                  {alert.action}
+                </Button>
               </div>
             </div>
           </div>
@@ -99,9 +99,9 @@ export default function PriorityAlerts() {
       </div>
 
       {alerts.length === 0 && (
-        <div className="text-center py-8">
-          <AlertTriangle className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-          <p className="text-gray-500">No priority alerts</p>
+        <div className="text-center py-4">
+          <AlertTriangle className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+          <p className="text-gray-500 text-sm">No priority alerts</p>
         </div>
       )}
     </div>
