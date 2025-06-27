@@ -64,10 +64,10 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const { entryDate, height, weight, ...rest } = data;
+      const { height, weight, entryDate, ...rest } = data;
       return await apiRequest(`/api/patients/${patientId}/body-composition`, "POST", {
         ...rest,
-        entryDate: new Date(entryDate),
+        entryDate: new Date(entryDate), // Convert string to Date
         heightInches: height, // Store height in inches
         weightPounds: weight, // Store weight in pounds
         // Convert to metric for legacy fields if needed
@@ -85,6 +85,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
       form.reset();
     },
     onError: (error: any) => {
+      console.error("Body composition form error:", error);
       toast({
         title: "Error",
         description: error.message || "Failed to add body composition data",

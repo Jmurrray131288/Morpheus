@@ -188,14 +188,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/body-composition", async (req, res) => {
     try {
+      console.log("Body composition request body:", JSON.stringify(req.body, null, 2));
       const validatedData = insertBodyCompositionEntrySchema.parse({
         ...req.body,
         patientId: req.params.patientId,
       });
+      console.log("Validated data:", JSON.stringify(validatedData, null, 2));
       const entry = await storage.createBodyCompositionEntry(validatedData);
       res.status(201).json(entry);
     } catch (error) {
       console.error("Error creating body composition entry:", error);
+      console.error("Error details:", error.message);
+      if (error.issues) {
+        console.error("Validation issues:", JSON.stringify(error.issues, null, 2));
+      }
       res.status(400).json({ message: "Failed to create body composition entry", error: error.message });
     }
   });
