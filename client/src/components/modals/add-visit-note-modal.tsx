@@ -53,7 +53,7 @@ export default function AddVisitNoteModal({
 
   const createVisitNoteMutation = useMutation({
     mutationFn: async (data: AddVisitNoteForm) => {
-      return await apiRequest(`/api/patients/${patientId}/visit-notes`, "POST", {
+      return await apiRequest("POST", `/api/patients/${patientId}/visit-notes`, {
         patientId,
         note: data.note,
       });
