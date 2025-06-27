@@ -174,7 +174,10 @@ export default function PatientsPage() {
               patientId={patient.id} 
               onAddMedication={() => {}} 
             />
-            <LabResultsSection patientId={patient.id} />
+            <LabResultsSection 
+              patientId={patient.id} 
+              patientName={`${patient.firstName} ${patient.lastName}`}
+            />
             <VisitNotesSection 
               patientId={patient.id} 
               onAddNote={() => setShowAddNoteModal(true)} 

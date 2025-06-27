@@ -113,6 +113,13 @@ export default function LabResultsSection({ patientId, patientName }: LabResults
           </table>
         </div>
       )}
+
+      <UploadLabReportModal
+        open={showUploadModal}
+        onOpenChange={setShowUploadModal}
+        patientId={patientId}
+        patientName={patientName || "Patient"}
+      />
     </div>
   );
 }
