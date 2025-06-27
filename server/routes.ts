@@ -209,6 +209,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.put("/api/patients/:patientId/body-composition/:id", async (req, res) => {
+    try {
+      const validatedData = insertBodyCompositionEntrySchema.partial().parse(req.body);
+      const entry = await storage.updateBodyCompositionEntry(req.params.id, validatedData);
+      res.json(entry);
+    } catch (error) {
+      console.error("Error updating body composition entry:", error);
+      res.status(400).json({ message: "Failed to update body composition entry", error: (error as any).message });
+    }
+  });
+
   app.put("/api/patients/:patientId/body-composition/:entryId", async (req, res) => {
     try {
       console.log("Updating body composition entry:", req.params.entryId);

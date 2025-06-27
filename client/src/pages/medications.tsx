@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Plus, Pill, Calendar, Clock } from "lucide-react";
+import QuickSearchBar from "@/components/quick-search-bar";
 import type { Patient, PrescribedMedication } from "@shared/schema";
 
 export default function MedicationsPage() {
@@ -28,23 +28,11 @@ export default function MedicationsPage() {
         </div>
       </div>
 
-      {/* Patient Selector */}
+      {/* Patient Search */}
       <div className="medical-card p-6 mb-6">
-        <div className="flex items-center space-x-4">
-          <label className="text-sm font-medium text-gray-700">Select Patient:</label>
-          <Select value={selectedPatientId} onValueChange={setSelectedPatientId}>
-            <SelectTrigger className="w-64">
-              <SelectValue placeholder="Choose a patient" />
-            </SelectTrigger>
-            <SelectContent>
-              {patients.map((patient) => (
-                <SelectItem key={patient.id} value={patient.id}>
-                  {patient.firstName} {patient.lastName}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <QuickSearchBar 
+          onPatientSelect={(patient) => setSelectedPatientId(patient.id)} 
+        />
       </div>
 
       {selectedPatient ? (
