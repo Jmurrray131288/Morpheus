@@ -20,6 +20,7 @@ function Router() {
       <Switch>
         <Route path="/" component={Dashboard} />
         <Route path="/patients" component={PatientsPage} />
+        <Route path="/patients/:id" component={PatientsPage} />
         <Route path="/medications" component={MedicationsPage} />
         <Route path="/lab-records" component={LabRecordsPage} />
         <Route path="/health-metrics" component={HealthMetricsPage} />
