@@ -1,9 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { Plus, Edit2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import AddBodyCompositionModal from "@/components/modals/add-body-composition-modal";
+import EditBodyCompositionModal from "@/components/modals/edit-body-composition-modal";
 import type { BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry, LabRecord } from "@shared/schema";
 
 interface HealthMetricsCardsProps {
@@ -82,7 +83,10 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
               <td className="py-3 font-medium text-blue-700">Body Composition</td>
               <td className="py-3">
                 {latestBodyComp ? (
-                  <span>BMI: {latestBodyComp.bmi?.toFixed(1)} • Weight: {latestBodyComp.weight}kg • Body Fat: {latestBodyComp.bodyFatPercentage?.toFixed(1)}%</span>
+                  <div className="flex items-center justify-between">
+                    <span>BMI: {latestBodyComp.bmi?.toFixed(1)} • Weight: {latestBodyComp.weightPounds?.toFixed(1) || latestBodyComp.weight?.toFixed(1)}lbs • Body Fat: {latestBodyComp.bodyFatPercentage?.toFixed(1)}% • Muscle: {latestBodyComp.skeletalMuscle?.toFixed(1)}%</span>
+                    <EditBodyCompositionModal patientId={patientId} entry={latestBodyComp} />
+                  </div>
                 ) : (
                   <span className="text-gray-500">No data available</span>
                 )}
