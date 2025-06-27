@@ -6,6 +6,7 @@ import { z } from "zod";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -107,6 +108,9 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>Add Body Composition Data</DialogTitle>
+          <DialogDescription>
+            Enter weight, height, and body composition measurements for this patient.
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

@@ -64,20 +64,7 @@ export default function HealthMetricsCards({ patientId }: HealthMetricsCardsProp
     <div className="medical-card p-4 mb-6">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">Health Metrics</h3>
-        <div className="flex space-x-2">
-          <AddBodyCompositionModal patientId={patientId} />
-          {bodyComposition.length === 0 && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={() => addBodyCompositionMutation.mutate()}
-              disabled={addBodyCompositionMutation.isPending}
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              {addBodyCompositionMutation.isPending ? "Adding..." : "Add Sample Data"}
-            </Button>
-          )}
-        </div>
+        <AddBodyCompositionModal patientId={patientId} />
       </div>
 
       <div className="overflow-x-auto">
