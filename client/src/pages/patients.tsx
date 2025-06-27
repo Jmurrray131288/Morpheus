@@ -65,32 +65,39 @@ export default function PatientsPage() {
 
     return (
       <div className="flex-1 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center">
+        <div className="mb-6">
+          <div className="flex items-center mb-4">
             <Button 
               variant="ghost" 
               onClick={() => setLocation("/patients")}
-              className="mr-4"
+              className="mr-3 text-gray-600 hover:text-gray-800"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Patients
+              <ArrowLeft className="w-4 h-4 mr-1" />
+              Back
             </Button>
+          </div>
+          
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-2xl font-bold text-gray-900">
                 {patient.firstName} {patient.lastName}
               </h1>
-              <p className="text-gray-500">
-                {patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"} • 
-                {patient.gender || "Gender not specified"}
+              <p className="text-gray-600 mt-1">
+                {patient.dateOfBirth ? `${calculateAge(patient.dateOfBirth)} years old` : "Age unknown"}
+                {patient.gender && ` • ${patient.gender}`}
+                {patient.contactNumber && ` • ${patient.contactNumber}`}
               </p>
             </div>
+            
+            <div className="flex items-center space-x-3">
+              <PatientSelector
+                patients={patients}
+                selectedPatientId={patient.id}
+                onPatientSelect={(patientId) => setLocation(`/patients/${patientId}`)}
+                selectedPatient={patient}
+              />
+            </div>
           </div>
-          <PatientSelector
-            patients={patients}
-            selectedPatientId={patient.id}
-            onPatientSelect={(patientId) => setLocation(`/patients/${patientId}`)}
-            selectedPatient={patient}
-          />
         </div>
 
         <div className="space-y-6">
