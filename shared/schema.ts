@@ -63,8 +63,13 @@ export const prescribedMedications = pgTable("prescribed_medications", {
   strength: varchar("strength"),
   dosage: varchar("dosage"),
   frequency: varchar("frequency"),
+  duration: varchar("duration"),
+  instructions: text("instructions"),
   startDate: date("start_date"),
   status: varchar("status"),
+  discontinuationReason: text("discontinuation_reason"),
+  discontinuedBy: varchar("discontinued_by"),
+  discontinuationDate: timestamp("discontinuation_date"),
 });
 
 export const visitNotes = pgTable("visit_notes", {

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus, Pill, Calendar, Clock, Trash2 } from "lucide-react";
+import { Plus, Pill, Calendar, Clock, Trash2, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import QuickSearchBar from "@/components/quick-search-bar";
 import AddMedicationModal from "@/components/modals/add-medication-modal";
+import EditMedicationModal from "@/components/modals/edit-medication-modal";
 import type { Patient, PrescribedMedication } from "@shared/schema";
 
 export default function MedicationsPage() {
@@ -93,11 +94,17 @@ export default function MedicationsPage() {
               {medications.map((medication) => (
                 <div key={medication.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-lg">{medication.name}</h3>
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-semibold text-lg">{medication.name}</h3>
+                      {(medication.status === "Inactive" || medication.status === "Discontinued") && (
+                        <AlertCircle className="w-5 h-5 text-orange-500" />
+                      )}
+                    </div>
                     <div className="flex items-center space-x-2">
                       <span className={medication.status === "Active" ? "status-active" : "status-inactive"}>
                         {medication.status || "Unknown"}
                       </span>
+                      <EditMedicationModal medication={medication} patientId={selectedPatientId} />
                       <Button
                         variant="ghost"
                         size="sm"
