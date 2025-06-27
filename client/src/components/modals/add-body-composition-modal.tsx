@@ -64,10 +64,15 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const { entryDate, ...rest } = data;
+      const { entryDate, height, weight, ...rest } = data;
       return await apiRequest(`/api/patients/${patientId}/body-composition`, "POST", {
         ...rest,
         entryDate: new Date(entryDate),
+        heightInches: height, // Store height in inches
+        weightPounds: weight, // Store weight in pounds
+        // Convert to metric for legacy fields if needed
+        height: height ? height * 2.54 : undefined, // Convert inches to cm
+        weight: weight ? weight * 0.453592 : undefined, // Convert lbs to kg
       });
     },
     onSuccess: () => {
