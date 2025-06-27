@@ -74,7 +74,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
       const { heightInches, weightPounds, entryDate, ...rest } = data;
-      return await apiRequest(`/api/patients/${patientId}/body-composition`, "POST", {
+      return await apiRequest("POST", `/api/patients/${patientId}/body-composition`, {
         ...rest,
         entryDate: new Date(entryDate), // Convert string to Date
         heightInches, // Store height in inches
