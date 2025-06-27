@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Intake Questionnaire</title>
+  <style>
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { margin: 0; padding: 0; background-color: #f5f7fa; color: #333; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+    header { text-align: center; padding: 20px 0; background-color: #2563eb; color: white; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+    h1 { margin: 0; font-size: 28px; }
+    .form-section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .section-title { color: #1e40af; border-bottom: 2px solid #2563eb; padding-bottom: 10px; margin-top: 0; margin-bottom: 20px; font-size: 22px; }
+    .patient-info { display: grid; grid-template-columns: repeat(auto-fill,minmax(300px,1fr)); gap: 15px; }
+    .form-group { margin-bottom: 15px; }
+    label { display: block; font-weight: 500; margin-bottom: 5px; }
+    input[type="text"], input[type="email"], input[type="date"], input[type="time"] { width: 100%; padding: 12px; border:1px solid #d1d5db; border-radius:6px; font-size:16px; }
+    .conditions-container { display: grid; grid-template-columns: repeat(auto-fill,minmax(450px,1fr)); gap:20px; }
+    .condition-category { background:#f8fafc; border-radius:8px; margin-bottom:20px; border:1px solid #e2e8f0; }
+    .category-title { padding:10px 15px; margin:0; background:#e0e7ff; border-top-left-radius:8px; border-top-right-radius:8px; font-weight:600; color:#1e3a8a; font-size:18px; border-bottom:1px solid #c7d2fe; }
+    .conditions-list { padding:10px 15px; }
+    .condition-item { display:flex; align-items:center; margin-bottom:8px; }
+    .condition-item input[type="checkbox"] { margin-right:10px; width:18px; height:18px; }
+    .code { font-family:monospace; background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:12px; color:#475569; margin-left:8px; }
+    .dynamic-list { margin-bottom:20px; }
+    .list-item { display:flex; gap:10px; margin-bottom:10px; }
+    .list-item input { flex:1; padding:8px; border:1px solid #d1d5db; border-radius:6px; }
+    .meal-item { display:grid; grid-template-columns: 1fr auto; gap:10px; margin-bottom:10px; align-items:center; }
+    .meal-item input[type="text"] { grid-column: 1; }
+    .meal-item input[type="time"] { grid-column: 2; width: 120px; }
+    .exercise-item { display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px; margin-bottom:10px; }
+    .add-button { background:#3b82f6; color:white; border:none; padding:8px 16px; border-radius:6px; cursor:pointer; font-weight:500; margin-top:5px; }
+    .add-button:hover { background:#2563eb; }
+    .buttons-container { display:flex; justify-content:center; gap:20px; margin-top:30px; }
+    .preview-button, .print-button { background:#059669; color:white; border:none; padding:12px 24px; border-radius:6px; cursor:pointer; font-weight:600; font-size:18px; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+    .preview-button:hover, .print-button:hover { background:#047857; }
+    @media (max-width:768px) { .conditions-container, .patient-info { grid-template-columns:1fr; } .buttons-container { flex-direction:column; align-items:center; } .meal-item, .exercise-item { grid-template-columns: 1fr; } }
+    @media print { button, .add-button, .no-print { display:none!important; } body, .container, .form-section { background:white!important; box-shadow:none!important; padding:0!important; margin:0!important; } header { background:white!important; color:black!important; border-bottom:2px solid black; border-radius:0!important; box-shadow:none!important; } input { border:none!important; padding:0!important; font-weight:normal; } .condition-category { border:none!important; background:white!important; } .category-title { border:none!important; background:white!important; border-bottom:1px solid #777!important; font-weight:bold; } .form-section { page-break-inside:avoid; margin-bottom:20px!important; } .report-footer { position:fixed; bottom:0; width:100%; text-align:center; font-size:10pt; border-top:1px solid #ccc; padding-top:5px; } }
+    #report-view { display:none; background:white; padding:30px; position:fixed; top:0; left:0; width:100%; height:100%; overflow:auto; z-index:1000; }
+    .close-preview { position:fixed; top:20px; right:20px; background:#ef4444; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+    .report-header { border-bottom:2px solid #2563eb; padding-bottom:15px; margin-bottom:25px; }
+    .report-title { color:#1e3a8a; font-size:26px; text-transform:uppercase; margin:0 0 10px 0; }
+    .report-date { color:#6b7280; font-size:14px; }
+    .patient-data { background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:25px; border-left:4px solid #2563eb; }
+    .data-label { font-weight:500; display:inline-block; width:100px; }
+    .report-section-title { color:#1e40af; font-size:22px; border-bottom:2px solid #2563eb; padding-bottom:10px; margin-top:20px; margin-bottom:15px; text-transform:uppercase; }
+    .report-category { margin-bottom:25px; background:#f8fafc; padding:0 15px 15px 15px; border-radius:8px; border:1px solid #e2e8f0; }
+    .report-category-title { color:#1e3a8a; font-size:18px; margin-top:20px; margin-bottom:12px; font-weight:600; text-decoration:underline; padding-bottom:5px; }
+    .report-condition { background:#f0f9ff; padding:10px 15px; border-radius:6px; margin-bottom:10px; border-left:3px solid #3b82f6; }
+    .report-code { font-family:monospace; background:#f1f5f9; padding:2px 6px; border-radius:4px; font-size:14px; color:#475569; }
+    .item-list { padding-left:20px; margin-top:10px; }
+    .list-item-report { margin-bottom:8px; border-bottom:1px solid #e5e7eb; padding-bottom:8px; }
+    .empty-notice { font-style:italic; color:#6b7280; }
+    .meal-report { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 4px; }
+    .exercise-report { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 8px; padding: 8px; background: #f8fafc; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="container" id="form-container">
+    <header><h1>PATIENT INTAKE QUESTIONNAIRE</h1></header>
+    
+    <div class="form-section">
+      <h2 class="section-title">Patient Information</h2>
+      <div class="patient-info">
+        <div class="form-group"><label for="name">FULL NAME</label><input type="text" id="name" placeholder="Enter patient name"></div>
+        <div class="form-group"><label for="dob">DATE OF BIRTH</label><input type="date" id="dob"></div>
+        <div class="form-group"><label for="email">EMAIL ADDRESS</label><input type="email" id="email" placeholder="Enter email address"></div>
+        <div class="form-group"><label for="phone">PHONE NUMBER</label><input type="text" id="phone" placeholder="Enter phone number"></div>
+        <div class="form-group"><label for="height">HEIGHT</label><input type="text" id="height" placeholder="e.g., 5'8&quot; or 173 cm"></div>
+        <div class="form-group"><label for="weight">WEIGHT</label><input type="text" id="weight" placeholder="e.g., 150 lbs or 68 kg"></div>
+        <div class="form-group"><label for="address">ADDRESS</label><input type="text" id="address" placeholder="Enter full address"></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Medical Conditions</h2>
+      <div class="conditions-container">
+        <!-- CardioVascular Disease -->
+        <div class="condition-category"><h3 class="category-title">CardioVascular Disease</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="hypertension"><label for="hypertension">Hypertension <span class="code">I11</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="ischemicHeartDiseases"><label for="ischemicHeartDiseases">Ischemic heart diseases <span class="code">I25</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="heartFailure"><label for="heartFailure">Heart failure <span class="code">I50</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="atrialFibrillation"><label for="atrialFibrillation">Atrial fibrillation <span class="code">I48</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="acuteMyocardialInfarction"><label for="acuteMyocardialInfarction">Acute myocardial infarction <span class="code">I21</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="aorticValveDisease"><label for="aorticValveDisease">Aortic Valve disease <span class="code">I25.1</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pulmonaryHeartDisease"><label for="pulmonaryHeartDisease">Pulmonary heart disease <span class="code">I27</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="cardiomyopathy"><label for="cardiomyopathy">Cardiomyopathy <span class="code">I42</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="aorticAneurysm"><label for="aorticAneurysm">Aortic aneurysm <span class="code">I71</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="carotidStenosis"><label for="carotidStenosis">Carotid Stenosis <span class="code">I65.2</span></label></div>
+        </div></div>
+        
+        <!-- Respiratory System -->
+        <div class="condition-category"><h3 class="category-title">Respiratory System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="copd"><label for="copd">COPD <span class="code">J44</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="asthma"><label for="asthma">Asthma <span class="code">J45</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pneumonia"><label for="pneumonia">Pneumonia <span class="code">J18</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicBronchitis"><label for="chronicBronchitis">Chronic bronchitis <span class="code">J20</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pulmonaryEmbolism"><label for="pulmonaryEmbolism">Pulmonary embolism <span class="code">I26</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="lungCancer"><label for="lungCancer">Lung cancer <span class="code">C34</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pleurisy"><label for="pleurisy">Pleurisy <span class="code">R09.1</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="interstitialLungDisease"><label for="interstitialLungDisease">Interstitial lung disease <span class="code">J84</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="respiratoryFailure"><label for="respiratoryFailure">Respiratory failure <span class="code">J96</span></label></div>
+        </div></div>
+        
+        <!-- Endocrine System -->
+        <div class="condition-category"><h3 class="category-title">Endocrine System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="diabetes1"><label for="diabetes1">Diabetes 1 <span class="code">E11.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="diabetes2"><label for="diabetes2">Diabetes 2 <span class="code">E11</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="hypothyroidism"><label for="hypothyroidism">Hypothyroidism <span class="code">E03.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="hyperthyroidism"><label for="hyperthyroidism">Hyperthyroidism <span class="code">E05.90</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pcos"><label for="pcos">PCOS <span class="code">E28.2</span></label></div>
+        </div></div>
+        
+        <!-- Renal/Urinary System -->
+        <div class="condition-category"><h3 class="category-title">Renal/Urinary System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="chronicKidneyDisease"><label for="chronicKidneyDisease">Chronic Kidney Disease (CKD) <span class="code">N18.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="benignProstaticHyperplasia"><label for="benignProstaticHyperplasia">Benign Prostatic Hyperplasia <span class="code">N40</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="nephrolithiasis"><label for="nephrolithiasis">Nephrolithiasis (Kidney Stones) <span class="code">N20</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="urinaryIncontinence"><label for="urinaryIncontinence">Urinary Incontinence <span class="code">R32</span></label></div>
+        </div></div>
+        
+        <!-- Musculoskeletal -->
+        <div class="condition-category"><h3 class="category-title">Musculoskeletal</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="osteoarthritis"><label for="osteoarthritis">Osteoarthritis <span class="code">M15</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="rheumatoidArthritis"><label for="rheumatoidArthritis">Rheumatoid Arthritis <span class="code">M05.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="fibromyalgia"><label for="fibromyalgia">Fibromyalgia <span class="code">M79.7</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="gout"><label for="gout">Gout <span class="code">M10</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicBackPain"><label for="chronicBackPain">Chronic Back Pain <span class="code">M54.5</span></label></div>
+        </div></div>
+        
+        <!-- Neurologic System -->
+        <div class="condition-category"><h3 class="category-title">Neurologic System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="stroke"><label for="stroke">Stroke <span class="code">I63</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="migraine"><label for="migraine">Migraine <span class="code">G43</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="epilepsy"><label for="epilepsy">Epilepsy <span class="code">G40</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="alzheimersDisease"><label for="alzheimersDisease">Alzheimer's disease <span class="code">G30</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="multipleSclerosis"><label for="multipleSclerosis">Multiple sclerosis <span class="code">G35</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="parkinsonsDisease"><label for="parkinsonsDisease">Parkinson's disease <span class="code">G20</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="peripheralNeuropathy"><label for="peripheralNeuropathy">Peripheral neuropathy <span class="code">G62</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="traumaticBrainInjury"><label for="traumaticBrainInjury">Traumatic brain injury <span class="code">S06</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="meningitis"><label for="meningitis">Meningitis <span class="code">G00</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="bellsPalsy"><label for="bellsPalsy">Bell's palsy <span class="code">G51.0</span></label></div>
+        </div></div>
+        
+        <!-- Gastrointestinal -->
+        <div class="condition-category"><h3 class="category-title">Gastrointestinal (GI)</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="gerd"><label for="gerd">GERD <span class="code">K21</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="pepticUlcerDisease"><label for="pepticUlcerDisease">Peptic ulcer disease <span class="code">K25-K28</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="crohnsDisease"><label for="crohnsDisease">Crohn's disease <span class="code">K50</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="irritableBowelSyndrome"><label for="irritableBowelSyndrome">Irritable bowel syndrome <span class="code">K58</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicLiverDisease"><label for="chronicLiverDisease">Chronic liver disease <span class="code">K70</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="acutePancreatitis"><label for="acutePancreatitis">Acute pancreatitis <span class="code">K85</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="gallstones"><label for="gallstones">Gallstones <span class="code">K80</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="celiacDisease"><label for="celiacDisease">Celiac disease <span class="code">K90.0</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="colorectalCancer"><label for="colorectalCancer">Colorectal cancer <span class="code">C18</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="constipation"><label for="constipation">Constipation <span class="code">K59.0</span></label></div>
+        </div></div>
+        
+        <!-- Hematological System -->
+        <div class="condition-category"><h3 class="category-title">Hematological System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="anemia"><label for="anemia">Anemia <span class="code">D64.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="hemophilia"><label for="hemophilia">Hemophilia <span class="code">D66</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicLymphocyticLeukemia"><label for="chronicLymphocyticLeukemia">Chronic Lymphocytic Leukemia <span class="code">C91.10</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="thrombocytopenia"><label for="thrombocytopenia">Thrombocytopenia <span class="code">D69.6</span></label></div>
+        </div></div>
+        
+        <!-- Psychological -->
+        <div class="condition-category"><h3 class="category-title">Psychological</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="depression"><label for="depression">Depression <span class="code">F32</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="anxietyDisorders"><label for="anxietyDisorders">Anxiety Disorders <span class="code">F41</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="bipolarDisorder"><label for="bipolarDisorder">Bipolar Disorder <span class="code">F31</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="ptsd"><label for="ptsd">PTSD <span class="code">F43.1</span></label></div>
+        </div></div>
+        
+        <!-- Chronic Conditions -->
+        <div class="condition-category"><h3 class="category-title">Chronic Conditions</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="obesity"><label for="obesity">Obesity <span class="code">E66.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicFatigueSyndrome"><label for="chronicFatigueSyndrome">Chronic Fatigue Syndrome <span class="code">G93.3</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicPainSyndromes"><label for="chronicPainSyndromes">Chronic Pain Syndromes <span class="code">G89</span></label></div>
+        </div></div>
+        
+        <!-- Immune System -->
+        <div class="condition-category"><h3 class="category-title">Immune System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="hiv"><label for="hiv">HIV <span class="code">B20</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="sle"><label for="sle">SLE <span class="code">M32.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="sjogrensSyndrome"><label for="sjogrensSyndrome">Sjögren's Syndrome <span class="code">M35.0</span></label></div>
+        </div></div>
+        
+        <!-- Dermatological System -->
+        <div class="condition-category"><h3 class="category-title">Dermatological System</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="psoriasis"><label for="psoriasis">Psoriasis <span class="code">L40</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="eczema"><label for="eczema">Eczema <span class="code">L20</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="chronicHives"><label for="chronicHives">Chronic Hives <span class="code">L50</span></label></div>
+        </div></div>
+        
+        <!-- Oncological -->
+        <div class="condition-category"><h3 class="category-title">Oncological</h3><div class="conditions-list">
+          <div class="condition-item"><input type="checkbox" id="breastCancer"><label for="breastCancer">Breast Cancer <span class="code">C50.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="prostateCancer"><label for="prostateCancer">Prostate Cancer <span class="code">C61</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="colonCancer"><label for="colonCancer">Colon Cancer <span class="code">C18.9</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="thyroidCancer"><label for="thyroidCancer">Thyroid Cancer <span class="code">C73</span></label></div>
+          <div class="condition-item"><input type="checkbox" id="renalCancer"><label for="renalCancer">Renal Cancer <span class="code">C64.9</span></label></div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Other Medical Conditions</h2>
+      <div class="form-group">
+        <label for="other-conditions">Please list any other medical conditions, diagnoses, or health concerns not mentioned above:</label>
+        <textarea id="other-conditions" placeholder="Enter any additional medical conditions, chronic illnesses, or health concerns..." style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 16px; font-family: Arial, sans-serif; resize: vertical;"></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Past Surgeries</h2>
+      <div id="surgeries-container" class="dynamic-list">
+        <div class="list-item"><input type="text" placeholder="Surgery name" class="surgery-name"><input type="text" placeholder="Year" class="surgery-year"></div>
+      </div>
+      <button type="button" class="add-button" id="add-surgery">+ Add Surgery</button>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Current Medications</h2>
+      <div id="medications-container" class="dynamic-list">
+        <div class="list-item"><input type="text" placeholder="Medication name" class="medication-name"></div>
+      </div>
+      <button type="button" class="add-button" id="add-medication">+ Add Medication</button>
+    </div>
+
+    <div class="form-section">
+      <h2 class="section-title">Allergies</h2>
+      <div id="allergies-container" class="dynamic-list">
+        <div class="list-item"><input type="text" placeholder="Allergy name" class="allergy-name"></div>
+      </div>
+      <button type="button" class="add-button" id="add-allergy">+ Add Allergy</button>
+    </div>
+
+    <!-- NEW DIET SECTION -->
+    <div class="form-section">
+      <h2 class="section-title">Diet Schedule</h2>
+      <div id="diet-container" class="dynamic-list">
+        <div class="meal-item">
+          <input type="text" placeholder="Breakfast description" class="meal-description">
+          <input type="time" class="meal-time">
+        </div>
+        <div class="meal-item">
+          <input type="text" placeholder="Lunch description" class="meal-description">
+          <input type="time" class="meal-time">
+        </div>
+        <div class="meal-item">
+          <input type="text" placeholder="Dinner description" class="meal-description">
+          <input type="time" class="meal-time">
+        </div>
+        <div class="meal-item">
+          <input type="text" placeholder="Snack description" class="meal-description">
+          <input type="time" class="meal-time">
+        </div>
+      </div>
+      <button type="button" class="add-button" id="add-meal">+ Add Meal/Snack</button>
+    </div>
+
+    <!-- NEW EXERCISE SECTION -->
+    <div class="form-section">
+      <h2 class="section-title">Exercise Activities</h2>
+      <div id="exercise-container" class="dynamic-list">
+        <div class="exercise-item">
+          <input type="text" placeholder="Exercise type (e.g., Running, Swimming)" class="exercise-type">
+          <input type="text" placeholder="Duration (minutes)" class="exercise-duration">
+          <input type="text" placeholder="Frequency per week" class="exercise-frequency">
+        </div>
+      </div>
+      <button type="button" class="add-button" id="add-exercise">+ Add Exercise</button>
+    </div>
+
+    <!-- NEW RESISTANCE TRAINING SECTION -->
+    <div class="form-section">
+      <h2 class="section-title">Resistance Training</h2>
+      <div id="resistance-container" class="dynamic-list">
+        <div class="exercise-item">
+          <input type="text" placeholder="Training type (e.g., Weight lifting, Bodyweight)" class="resistance-type">
+          <input type="text" placeholder="Duration (minutes)" class="resistance-duration">
+          <input type="text" placeholder="Frequency per week" class="resistance-frequency">
+        </div>
+      </div>
+      <button type="button" class="add-button" id="add-resistance">+ Add Resistance Training</button>
+    </div>
+
+    <div class="buttons-container">
+      <button type="button" class="preview-button" id="preview-button">Preview Report</button>
+      <button type="button" class="print-button" id="print-button">Print Report</button>
+      <button type="button" class="preview-button" id="email-button">Email Report</button>
+    </div>
+  </div>
+
+  <div id="report-view">
+    <button class="close-preview" id="close-preview">&times;</button>
+    <div class="report-header"><h1 class="report-title">Patient Intake Report</h1><div class="report-date" id="report-date"></div></div>
+    <div class="patient-data" id="patient-data-section"></div>
+    <div class="report-section"><h2 class="report-section-title">Medical Conditions</h2><div id="report-conditions"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Other Medical Conditions</h2><div id="report-other-conditions"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Surgeries</h2><div id="report-surgeries"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Current Medications</h2><div id="report-medications"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Allergies</h2><div id="report-allergies"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Diet Schedule</h2><div id="report-diet"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Exercise Activities</h2><div id="report-exercise"></div></div>
+    <div class="report-section"><h2 class="report-section-title">Resistance Training</h2><div id="report-resistance"></div></div>
+    <div class="report-footer"><p>Morpheus EMR - Confidential Patient Information</p><p>This document contains personal health information protected under HIPAA</p></div>
+  </div>
+
+  <script>
+    const categoryMap = {
+      'CardioVascular Disease': ['hypertension', 'ischemicHeartDiseases', 'heartFailure', 'atrialFibrillation', 'acuteMyocardialInfarction', 'aorticValveDisease', 'pulmonaryHeartDisease', 'cardiomyopathy', 'aorticAneurysm', 'carotidStenosis'],
+      'Respiratory System': ['copd', 'asthma', 'pneumonia', 'chronicBronchitis', 'pulmonaryEmbolism', 'lungCancer', 'pleurisy', 'interstitialLungDisease', 'respiratoryFailure'],
+      'Endocrine System': ['diabetes1', 'diabetes2', 'hypothyroidism', 'hyperthyroidism', 'pcos'],
+      'Renal/Urinary System': ['chronicKidneyDisease', 'benignProstaticHyperplasia', 'nephrolithiasis', 'urinaryIncontinence'],
+      'Musculoskeletal': ['osteoarthritis', 'rheumatoidArthritis', 'fibromyalgia', 'gout', 'chronicBackPain'],
+      'Neurologic System': ['stroke', 'migraine', 'epilepsy', 'alzheimersDisease', 'multipleSclerosis', 'parkinsonsDisease', 'peripheralNeuropathy', 'traumaticBrainInjury', 'meningitis', 'bellsPalsy'],
+      'Gastrointestinal (GI)': ['gerd', 'pepticUlcerDisease', 'crohnsDisease', 'irritableBowelSyndrome', 'chronicLiverDisease', 'acutePancreatitis', 'gallstones', 'celiacDisease', 'colorectalCancer', 'constipation'],
+      'Hematological System': ['anemia', 'hemophilia', 'chronicLymphocyticLeukemia', 'thrombocytopenia'],
+      'Psychological': ['depression', 'anxietyDisorders', 'bipolarDisorder', 'ptsd'],
+      'Chronic Conditions': ['obesity', 'chronicFatigueSyndrome', 'chronicPainSyndromes'],
+      'Immune System': ['hiv', 'sle', 'sjogrensSyndrome'],
+      'Dermatological System': ['psoriasis', 'eczema', 'chronicHives'],
+      'Oncological': ['breastCancer', 'prostateCancer', 'colonCancer', 'thyroidCancer', 'renalCancer']
+    };
+
+    function addItem(containerId, templateSelector = '.list-item') {
+      const container = document.getElementById(containerId);
+      const template = container.querySelector(templateSelector);
+      if (template) {
+        const newItem = template.cloneNode(true);
+        // Clear input values in the new item
+        newItem.querySelectorAll('input').forEach(input => input.value = '');
+        container.appendChild(newItem);
+      }
+    }
+
+    function addMealItem() {
+      const container = document.getElementById('diet-container');
+      const newMeal = document.createElement('div');
+      newMeal.className = 'meal-item';
+      newMeal.innerHTML = `
+        <input type="text" placeholder="Meal/snack description" class="meal-description">
+        <input type="time" class="meal-time">
+      `;
+      container.appendChild(newMeal);
+    }
+
+    function addExerciseItem() {
+      const container = document.getElementById('exercise-container');
+      const newExercise = document.createElement('div');
+      newExercise.className = 'exercise-item';
+      newExercise.innerHTML = `
+        <input type="text" placeholder="Exercise type" class="exercise-type">
+        <input type="text" placeholder="Duration (minutes)" class="exercise-duration">
+        <input type="text" placeholder="Frequency per week" class="exercise-frequency">
+      `;
+      container.appendChild(newExercise);
+    }
+
+    function addResistanceItem() {
+      const container = document.getElementById('resistance-container');
+      const newResistance = document.createElement('div');
+      newResistance.className = 'exercise-item';
+      newResistance.innerHTML = `
+        <input type="text" placeholder="Training type" class="resistance-type">
+        <input type="text" placeholder="Duration (minutes)" class="resistance-duration">
+        <input type="text" placeholder="Frequency per week" class="resistance-frequency">
+      `;
+      container.appendChild(newResistance);
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'Not provided';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+
+    function formatTime(timeString) {
+      if (!timeString) return 'Not specified';
+      const [hours, minutes] = timeString.split(':');
+      const hour = parseInt(hours);
+      const ampm = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return `${displayHour}:${minutes} ${ampm}`;
+    }
+
+    function generateReportContent() {
+      const reportDate = document.getElementById('report-date');
+      reportDate.textContent = `Generated on: ${new Date().toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      })}`;
+
+      // Patient Information
+      const patientData = document.getElementById('patient-data-section');
+      const name = document.getElementById('name').value || 'Not provided';
+      const dob = formatDate(document.getElementById('dob').value);
+      const email = document.getElementById('email').value || 'Not provided';
+      const phone = document.getElementById('phone').value || 'Not provided';
+      const height = document.getElementById('height').value || 'Not provided';
+      const weight = document.getElementById('weight').value || 'Not provided';
+      const address = document.getElementById('address').value || 'Not provided';
+      
+      patientData.innerHTML = `
+        <div><span class="data-label">Name:</span> ${name}</div>
+        <div><span class="data-label">DOB:</span> ${dob}</div>
+        <div><span class="data-label">Email:</span> ${email}</div>
+        <div><span class="data-label">Phone:</span> ${phone}</div>
+        <div><span class="data-label">Height:</span> ${height}</div>
+        <div><span class="data-label">Weight:</span> ${weight}</div>
+        <div><span class="data-label">Address:</span> ${address}</div>
+      `;
+
+      // Medical Conditions
+      const conditionsReport = document.getElementById('report-conditions');
+      let conditionsHTML = '';
+      
+      Object.keys(categoryMap).forEach(category => {
+        const categoryConditions = categoryMap[category];
+        const selectedConditions = categoryConditions.filter(conditionId => {
+          const checkbox = document.getElementById(conditionId);
+          return checkbox && checkbox.checked;
+        });
+        
+        if (selectedConditions.length > 0) {
+          conditionsHTML += `<div class="report-category">`;
+          conditionsHTML += `<h3 class="report-category-title">${category}</h3>`;
+          selectedConditions.forEach(conditionId => {
+            const label = document.querySelector(`label[for="${conditionId}"]`);
+            if (label) {
+              conditionsHTML += `<div class="report-condition">${label.innerHTML}</div>`;
+            }
+          });
+          conditionsHTML += `</div>`;
+        }
+      });
+      
+      conditionsReport.innerHTML = conditionsHTML || '<div class="empty-notice">No medical conditions reported</div>';
+
+      // Other Medical Conditions
+      const otherConditionsReport = document.getElementById('report-other-conditions');
+      const otherConditions = document.getElementById('other-conditions').value.trim();
+      
+      if (otherConditions) {
+        otherConditionsReport.innerHTML = `<div style="background: #f8fafc; padding: 15px; border-radius: 6px; border-left: 3px solid #3b82f6; white-space: pre-wrap;">${otherConditions}</div>`;
+      } else {
+        otherConditionsReport.innerHTML = '<div class="empty-notice">No additional medical conditions reported</div>';
+      }
+
+      // Surgeries
+      const surgeriesReport = document.getElementById('report-surgeries');
+      const surgeryItems = document.querySelectorAll('#surgeries-container .list-item');
+      let surgeriesHTML = '';
+      
+      surgeryItems.forEach(item => {
+        const name = item.querySelector('.surgery-name').value.trim();
+        const year = item.querySelector('.surgery-year').value.trim();
+        if (name || year) {
+          surgeriesHTML += `<div class="list-item-report"><strong>${name || 'Surgery name not specified'}</strong> - ${year || 'Year not specified'}</div>`;
+        }
+      });
+      
+      surgeriesReport.innerHTML = surgeriesHTML || '<div class="empty-notice">No surgeries reported</div>';
+
+      // Medications
+      const medicationsReport = document.getElementById('report-medications');
+      const medicationItems = document.querySelectorAll('#medications-container .list-item');
+      let medicationsHTML = '';
+      
+      medicationItems.forEach(item => {
+        const name = item.querySelector('.medication-name').value.trim();
+        if (name) {
+          medicationsHTML += `<div class="list-item-report">${name}</div>`;
+        }
+      });
+      
+      medicationsReport.innerHTML = medicationsHTML || '<div class="empty-notice">No medications reported</div>';
+
+      // Allergies
+      const allergiesReport = document.getElementById('report-allergies');
+      const allergyItems = document.querySelectorAll('#allergies-container .list-item');
+      let allergiesHTML = '';
+      
+      allergyItems.forEach(item => {
+        const name = item.querySelector('.allergy-name').value.trim();
+        if (name) {
+          allergiesHTML += `<div class="list-item-report">${name}</div>`;
+        }
+      });
+      
+      allergiesReport.innerHTML = allergiesHTML || '<div class="empty-notice">No allergies reported</div>';
+
+      // Diet Schedule
+      const dietReport = document.getElementById('report-diet');
+      const mealItems = document.querySelectorAll('#diet-container .meal-item');
+      let dietHTML = '';
+      
+      mealItems.forEach(item => {
+        const description = item.querySelector('.meal-description').value.trim();
+        const time = item.querySelector('.meal-time').value.trim();
+        if (description || time) {
+          dietHTML += `<div class="meal-report">
+            <span><strong>${description || 'Meal not specified'}</strong></span>
+            <span>${formatTime(time)}</span>
+          </div>`;
+        }
+      });
+      
+      dietReport.innerHTML = dietHTML || '<div class="empty-notice">No diet schedule reported</div>';
+
+      // Exercise Activities
+      const exerciseReport = document.getElementById('report-exercise');
+      const exerciseItems = document.querySelectorAll('#exercise-container .exercise-item');
+      let exerciseHTML = '';
+      
+      exerciseItems.forEach(item => {
+        const type = item.querySelector('.exercise-type').value.trim();
+        const duration = item.querySelector('.exercise-duration').value.trim();
+        const frequency = item.querySelector('.exercise-frequency').value.trim();
+        if (type || duration || frequency) {
+          exerciseHTML += `<div class="exercise-report">
+            <span><strong>${type || 'Type not specified'}</strong></span>
+            <span>${duration || 'Duration not specified'} min</span>
+            <span>${frequency || 'Frequency not specified'}/week</span>
+          </div>`;
+        }
+      });
+      
+      exerciseReport.innerHTML = exerciseHTML || '<div class="empty-notice">No exercise activities reported</div>';
+
+      // Resistance Training
+      const resistanceReport = document.getElementById('report-resistance');
+      const resistanceItems = document.querySelectorAll('#resistance-container .exercise-item');
+      let resistanceHTML = '';
+      
+      resistanceItems.forEach(item => {
+        const type = item.querySelector('.resistance-type').value.trim();
+        const duration = item.querySelector('.resistance-duration').value.trim();
+        const frequency = item.querySelector('.resistance-frequency').value.trim();
+        if (type || duration || frequency) {
+          resistanceHTML += `<div class="exercise-report">
+            <span><strong>${type || 'Type not specified'}</strong></span>
+            <span>${duration || 'Duration not specified'} min</span>
+            <span>${frequency || 'Frequency not specified'}/week</span>
+          </div>`;
+        }
+      });
+      
+      resistanceReport.innerHTML = resistanceHTML || '<div class="empty-notice">No resistance training reported</div>';
+    }
+
+    // Event Listeners
+    document.getElementById('add-surgery').onclick = () => addItem('surgeries-container');
+    document.getElementById('add-medication').onclick = () => addItem('medications-container');
+    document.getElementById('add-allergy').onclick = () => addItem('allergies-container');
+    document.getElementById('add-meal').onclick = addMealItem;
+    document.getElementById('add-exercise').onclick = addExerciseItem;
+    document.getElementById('add-resistance').onclick = addResistanceItem;
+
+    document.getElementById('preview-button').onclick = () => {
+      generateReportContent();
+      document.getElementById('report-view').style.display = 'block';
+    };
+
+    document.getElementById('close-preview').onclick = () => {
+      document.getElementById('report-view').style.display = 'none';
+    };
+
+    document.getElementById('print-button').onclick = () => {
+      generateReportContent();
+      window.print();
+    };
+
+    document.getElementById('print-button').onclick = () => {
+      generateReportContent();
+      window.print();
+    };
+
+    document.getElementById('email-button').onclick = () => {
+      emailReport();
+    };
+
+    function emailReport() {
+      const reportText = generateEmailReport();
+      const patientName = document.getElementById('name').value || 'Patient';
+      const date = new Date().toLocaleDateString();
+      
+      // Customize this email address to your clinic's email
+      const doctorEmail = 'drjeffreid@gmail.com'; // CHANGE THIS TO YOUR EMAIL
+      
+      const subject = `Patient Intake Form - ${patientName} - ${date}`;
+      const body = encodeURIComponent(reportText);
+      
+      // Open email client with pre-filled information
+      window.location.href = `mailto:${doctorEmail}?subject=${encodeURIComponent(subject)}&body=${body}`;
+    }
+
+    function generateEmailReport() {
+      const name = document.getElementById('name').value || 'Not provided';
+      const dob = document.getElementById('dob').value || 'Not provided';
+      const email = document.getElementById('email').value || 'Not provided';
+      const phone = document.getElementById('phone').value || 'Not provided';
+      const height = document.getElementById('height').value || 'Not provided';
+      const weight = document.getElementById('weight').value || 'Not provided';
+      const address = document.getElementById('address').value || 'Not provided';
+      
+      let report = `PATIENT INTAKE REPORT
+Generated: ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+
+PATIENT INFORMATION:
+Name: ${name}
+Date of Birth: ${dob}
+Email: ${email}
+Phone: ${phone}
+Height: ${height}
+Weight: ${weight}
+Address: ${address}
+
+MEDICAL CONDITIONS:
+`;
+
+      // Medical Conditions
+      let hasConditions = false;
+      Object.keys(categoryMap).forEach(category => {
+        const categoryConditions = categoryMap[category];
+        const selectedConditions = categoryConditions.filter(conditionId => {
+          const checkbox = document.getElementById(conditionId);
+          return checkbox && checkbox.checked;
+        });
+        
+        if (selectedConditions.length > 0) {
+          hasConditions = true;
+          report += `\n${category}:\n`;
+          selectedConditions.forEach(conditionId => {
+            const label = document.querySelector(`label[for="${conditionId}"]`);
+            if (label) {
+              report += `- ${label.textContent}\n`;
+            }
+          });
+        }
+      });
+      
+      if (!hasConditions) {
+        report += 'No medical conditions reported\n';
+      }
+
+      // Other Medical Conditions
+      const otherConditions = document.getElementById('other-conditions').value.trim();
+      report += `\nOTHER MEDICAL CONDITIONS:\n`;
+      report += otherConditions || 'None reported';
+      report += '\n';
+
+      // Surgeries
+      report += `\nPAST SURGERIES:\n`;
+      const surgeryItems = document.querySelectorAll('#surgeries-container .list-item');
+      let hasSurgeries = false;
+      
+      surgeryItems.forEach(item => {
+        const surgeryName = item.querySelector('.surgery-name').value.trim();
+        const surgeryYear = item.querySelector('.surgery-year').value.trim();
+        if (surgeryName || surgeryYear) {
+          hasSurgeries = true;
+          report += `- ${surgeryName || 'Surgery name not specified'} (${surgeryYear || 'Year not specified'})\n`;
+        }
+      });
+      
+      if (!hasSurgeries) {
+        report += 'No surgeries reported\n';
+      }
+
+      // Medications
+      report += `\nCURRENT MEDICATIONS:\n`;
+      const medicationItems = document.querySelectorAll('#medications-container .list-item');
+      let hasMedications = false;
+      
+      medicationItems.forEach(item => {
+        const medicationName = item.querySelector('.medication-name').value.trim();
+        if (medicationName) {
+          hasMedications = true;
+          report += `- ${medicationName}\n`;
+        }
+      });
+      
+      if (!hasMedications) {
+        report += 'No medications reported\n';
+      }
+
+      // Allergies
+      report += `\nALLERGIES:\n`;
+      const allergyItems = document.querySelectorAll('#allergies-container .list-item');
+      let hasAllergies = false;
+      
+      allergyItems.forEach(item => {
+        const allergyName = item.querySelector('.allergy-name').value.trim();
+        if (allergyName) {
+          hasAllergies = true;
+          report += `- ${allergyName}\n`;
+        }
+      });
+      
+      if (!hasAllergies) {
+        report += 'No allergies reported\n';
+      }
+
+      // Diet Schedule
+      report += `\nDIET SCHEDULE:\n`;
+      const mealItems = document.querySelectorAll('#diet-container .meal-item');
+      let hasMeals = false;
+      
+      mealItems.forEach(item => {
+        const description = item.querySelector('.meal-description').value.trim();
+        const time = item.querySelector('.meal-time').value.trim();
+        if (description || time) {
+          hasMeals = true;
+          const formattedTime = time ? formatTime(time) : 'Time not specified';
+          report += `- ${description || 'Meal not specified'} at ${formattedTime}\n`;
+        }
+      });
+      
+      if (!hasMeals) {
+        report += 'No diet schedule reported\n';
+      }
+
+      // Exercise Activities
+      report += `\nEXERCISE ACTIVITIES:\n`;
+      const exerciseItems = document.querySelectorAll('#exercise-container .exercise-item');
+      let hasExercise = false;
+      
+      exerciseItems.forEach(item => {
+        const type = item.querySelector('.exercise-type').value.trim();
+        const duration = item.querySelector('.exercise-duration').value.trim();
+        const frequency = item.querySelector('.exercise-frequency').value.trim();
+        if (type || duration || frequency) {
+          hasExercise = true;
+          report += `- ${type || 'Type not specified'}: ${duration || 'Duration not specified'} minutes, ${frequency || 'Frequency not specified'} times per week\n`;
+        }
+      });
+      
+      if (!hasExercise) {
+        report += 'No exercise activities reported\n';
+      }
+
+      // Resistance Training
+      report += `\nRESISTANCE TRAINING:\n`;
+      const resistanceItems = document.querySelectorAll('#resistance-container .exercise-item');
+      let hasResistance = false;
+      
+      resistanceItems.forEach(item => {
+        const type = item.querySelector('.resistance-type').value.trim();
+        const duration = item.querySelector('.resistance-duration').value.trim();
+        const frequency = item.querySelector('.resistance-frequency').value.trim();
+        if (type || duration || frequency) {
+          hasResistance = true;
+          report += `- ${type || 'Type not specified'}: ${duration || 'Duration not specified'} minutes, ${frequency || 'Frequency not specified'} times per week\n`;
+        }
+      });
+      
+      if (!hasResistance) {
+        report += 'No resistance training reported\n';
+      }
+
+      report += `\n\n---
+This report was generated from the Patient Intake Questionnaire
+Morpheus EMR - Confidential Patient Information
+`;
+
+      return report;
+    }
+
+    // Alternative PDF generation using HTML5 Canvas (more advanced)
+    function generatePDFAlternative() {
+      // This would require adding a PDF library like jsPDF or html2pdf
+      // For now, we'll use the browser's native PDF capability
+      generateReportContent();
+      document.getElementById('report-view').style.display = 'block';
+      
+      setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          document.getElementById('report-view').style.display = 'none';
+        }, 1000);
+      }, 500);
+    }
+  </script>
+</body>
+</html>
