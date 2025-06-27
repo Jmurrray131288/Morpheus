@@ -1,25 +1,19 @@
 import { useState } from "react";
-import PatientSelector from "@/components/patient-selector";
+import TodaysSchedule from "@/components/todays-schedule";
+import PriorityAlerts from "@/components/priority-alerts";
+import RecentActivity from "@/components/recent-activity";
+import QuickPatientSearch from "@/components/quick-patient-search";
 import HealthMetricsCards from "@/components/health-metrics-cards";
-import MedicationsSection from "@/components/medications-section";
-import LabResultsSection from "@/components/lab-results-section";
-import VisitNotesSection from "@/components/visit-notes-section";
-import PrecisionMedicineSection from "@/components/precision-medicine-section";
-import AdvancedTreatmentsSection from "@/components/advanced-treatments-section";
-import QuickActions from "@/components/quick-actions";
+import PatientSelector from "@/components/patient-selector";
 import AddPatientModal from "@/components/modals/add-patient-modal";
-import AddMedicationModal from "@/components/modals/add-medication-modal";
-import AddVisitNoteModal from "@/components/modals/add-visit-note-modal";
 import { Button } from "@/components/ui/button";
-import { Search, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import type { Patient } from "@shared/schema";
 
 export default function Dashboard() {
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   const [showAddPatientModal, setShowAddPatientModal] = useState(false);
-  const [showAddMedicationModal, setShowAddMedicationModal] = useState(false);
-  const [showAddVisitNoteModal, setShowAddVisitNoteModal] = useState(false);
 
   const { data: patients = [], isLoading: patientsLoading } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
@@ -38,8 +32,8 @@ export default function Dashboard() {
       <header className="bg-white shadow-sm border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Patient Dashboard</h2>
-            <p className="text-sm text-gray-500">Comprehensive patient health overview</p>
+            <h2 className="text-2xl font-bold text-gray-900">Clinical Dashboard</h2>
+            <p className="text-sm text-gray-500">Daily practice overview and patient management</p>
           </div>
           <div className="flex items-center space-x-4">
             <Button 
@@ -49,10 +43,6 @@ export default function Dashboard() {
               <Plus className="w-4 h-4 mr-2" />
               Add Patient
             </Button>
-            <Button variant="outline" className="bg-gray-100 text-gray-700 hover:bg-gray-200">
-              <Search className="w-4 h-4 mr-2" />
-              Search
-            </Button>
           </div>
         </div>
       </header>
@@ -61,7 +51,7 @@ export default function Dashboard() {
       <main className="flex-1 overflow-y-auto p-6">
         {patientsLoading ? (
           <div className="flex items-center justify-center h-64">
-            <div className="text-lg text-gray-500">Loading patients...</div>
+            <div className="text-lg text-gray-500">Loading dashboard...</div>
           </div>
         ) : patients.length === 0 ? (
           <div className="flex items-center justify-center h-64">
@@ -74,42 +64,33 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          <>
-            {/* Patient Selection */}
-            <PatientSelector
-              patients={patients}
-              selectedPatientId={selectedPatientId}
-              onPatientSelect={setSelectedPatientId}
-              selectedPatient={selectedPatient}
-            />
+          <div className="space-y-6">
+            {/* Top Row - Schedule and Alerts */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <TodaysSchedule />
+              <PriorityAlerts />
+            </div>
 
-            {selectedPatient && (
-              <>
-                {/* Health Metrics Overview */}
+            {/* Middle Row - Recent Activity and Patient Search */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <RecentActivity />
+              <QuickPatientSearch />
+            </div>
+
+            {/* Bottom Section - Quick Patient Overview */}
+            <div className="space-y-6">
+              <PatientSelector
+                patients={patients}
+                selectedPatientId={selectedPatientId}
+                onPatientSelect={setSelectedPatientId}
+                selectedPatient={selectedPatient}
+              />
+
+              {selectedPatient && (
                 <HealthMetricsCards patientId={selectedPatient.id} />
-
-                {/* Detailed Sections */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                  <MedicationsSection 
-                    patientId={selectedPatient.id}
-                    onAddMedication={() => setShowAddMedicationModal(true)}
-                  />
-                  <LabResultsSection patientId={selectedPatient.id} />
-                  <VisitNotesSection 
-                    patientId={selectedPatient.id}
-                    onAddNote={() => setShowAddVisitNoteModal(true)}
-                  />
-                  <PrecisionMedicineSection patientId={selectedPatient.id} />
-                </div>
-
-                {/* Advanced Treatments */}
-                <AdvancedTreatmentsSection patientId={selectedPatient.id} />
-
-                {/* Quick Actions */}
-                <QuickActions />
-              </>
-            )}
-          </>
+              )}
+            </div>
+          </div>
         )}
       </main>
 
@@ -118,22 +99,6 @@ export default function Dashboard() {
         open={showAddPatientModal}
         onOpenChange={setShowAddPatientModal}
       />
-      
-      {selectedPatient && (
-        <>
-          <AddMedicationModal
-            open={showAddMedicationModal}
-            onOpenChange={setShowAddMedicationModal}
-            patientId={selectedPatient.id}
-          />
-          
-          <AddVisitNoteModal
-            open={showAddVisitNoteModal}
-            onOpenChange={setShowAddVisitNoteModal}
-            patientId={selectedPatient.id}
-          />
-        </>
-      )}
     </div>
   );
 }
