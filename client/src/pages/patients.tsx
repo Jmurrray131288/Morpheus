@@ -4,6 +4,7 @@ import { useParams, useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Plus, Edit, Trash2, Phone, Calendar, ArrowLeft } from "lucide-react";
 import AddPatientModal from "@/components/modals/add-patient-modal";
+import EditPatientModal from "@/components/modals/edit-patient-modal";
 import PatientSelector from "@/components/patient-selector";
 import HealthMetricsCards from "@/components/health-metrics-cards";
 import MedicationsSection from "@/components/medications-section";
@@ -207,9 +208,7 @@ export default function PatientsPage() {
                             View
                           </Button>
                         </Link>
-                        <Button variant="ghost" size="sm" onClick={(e) => e.preventDefault()}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
+                        <EditPatientModal patient={patient} />
                         <Button variant="ghost" size="sm" className="text-red-600 hover:text-red-700" onClick={(e) => e.preventDefault()}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
