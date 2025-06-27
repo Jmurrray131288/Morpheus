@@ -43,6 +43,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Combined patient profile endpoint - fetches all patient data in one request
+  app.get("/api/patients/:id/profile", async (req, res) => {
+    try {
+      const patientId = req.params.id;
+      
+      // Fetch patient basic info
+      const patient = await storage.getPatient(patientId);
+      if (!patient) {
+        return res.status(404).json({ message: "Patient not found" });
+      }
+
+      // Fetch all patient data in parallel for better performance
+      const [
+        medications,
+        visitNotes,
+        bodyComposition,
+        cardiovascularHealth,
+        metabolicHealth,
+        labRecords,
+        peptides,
+        supplements,
+        ivTreatments,
+        genomicReports,
+        precisionLabReports,
+        precisionTests
+      ] = await Promise.all([
+        storage.getPatientMedications(patientId),
+        storage.getPatientVisitNotes(patientId),
+        storage.getPatientBodyComposition(patientId),
+        storage.getPatientCardiovascularHealth(patientId),
+        storage.getPatientMetabolicHealth(patientId),
+        storage.getPatientLabRecords(patientId),
+        storage.getPatientPeptides(patientId),
+        storage.getPatientSupplements(patientId),
+        storage.getPatientIvTreatments(patientId),
+        storage.getPatientGenomicReports(patientId),
+        storage.getPatientPrecisionLabReports(patientId),
+        storage.getPatientPrecisionTests(patientId)
+      ]);
+
+      res.json({
+        patient,
+        medications,
+        visitNotes,
+        bodyComposition,
+        cardiovascularHealth,
+        metabolicHealth,
+        labRecords,
+        peptides,
+        supplements,
+        ivTreatments,
+        genomicReports,
+        precisionLabReports,
+        precisionTests
+      });
+    } catch (error) {
+      console.error("Error fetching patient profile:", error);
+      res.status(500).json({ message: "Failed to fetch patient profile" });
+    }
+  });
+
   app.post("/api/patients", async (req, res) => {
     try {
       const validatedData = insertPatientSchema.parse(req.body);

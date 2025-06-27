@@ -9,9 +9,11 @@ interface MedicationsSectionProps {
 }
 
 export default function MedicationsSection({ patientId, onAddMedication }: MedicationsSectionProps) {
-  const { data: medications = [], isLoading } = useQuery<PrescribedMedication[]>({
-    queryKey: [`/api/patients/${patientId}/medications`],
+  const { data: profileData, isLoading } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
+
+  const medications = profileData?.medications || [];
 
   if (isLoading) {
     return (

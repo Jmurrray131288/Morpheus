@@ -9,9 +9,11 @@ interface WeightMuscleTrendsProps {
 }
 
 export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProps) {
-  const { data: bodyComposition = [] } = useQuery<BodyCompositionEntry[]>({
-    queryKey: [`/api/patients/${patientId}/body-composition`],
+  const { data: profileData } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
+
+  const bodyComposition = profileData?.bodyComposition || [];
 
   // Process data for chart
   const chartData = bodyComposition

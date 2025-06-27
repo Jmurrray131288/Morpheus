@@ -19,25 +19,16 @@ export default function HealthMetricsCards({ patientId, patientName }: HealthMet
   const queryClient = useQueryClient();
   const [showHistoryModal, setShowHistoryModal] = useState(false);
   
-  const { data: patient } = useQuery({
-    queryKey: [`/api/patients/${patientId}`],
-    enabled: !patientName,
-  });
-  const { data: bodyComposition = [] } = useQuery<BodyCompositionEntry[]>({
-    queryKey: [`/api/patients/${patientId}/body-composition`],
+  // Use combined profile endpoint for better performance
+  const { data: profileData } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
 
-  const { data: cardiovascularHealth = [] } = useQuery<CardiovascularHealthEntry[]>({
-    queryKey: [`/api/patients/${patientId}/cardiovascular-health`],
-  });
-
-  const { data: metabolicHealth = [] } = useQuery<MetabolicHealthEntry[]>({
-    queryKey: [`/api/patients/${patientId}/metabolic-health`],
-  });
-
-  const { data: labRecords = [] } = useQuery<LabRecord[]>({
-    queryKey: [`/api/patients/${patientId}/lab-records`],
-  });
+  const patient = profileData?.patient;
+  const bodyComposition = profileData?.bodyComposition || [];
+  const cardiovascularHealth = profileData?.cardiovascularHealth || [];
+  const metabolicHealth = profileData?.metabolicHealth || [];
+  const labRecords = profileData?.labRecords || [];
 
   const latestBodyComp = bodyComposition[0];
   const latestCardio = cardiovascularHealth[0];

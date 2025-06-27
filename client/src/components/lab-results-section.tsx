@@ -8,9 +8,11 @@ interface LabResultsSectionProps {
 }
 
 export default function LabResultsSection({ patientId }: LabResultsSectionProps) {
-  const { data: labRecords = [], isLoading } = useQuery<LabRecord[]>({
-    queryKey: [`/api/patients/${patientId}/lab-records`],
+  const { data: profileData, isLoading } = useQuery({
+    queryKey: [`/api/patients/${patientId}/profile`],
   });
+
+  const labRecords = profileData?.labRecords || [];
 
   if (isLoading) {
     return (
