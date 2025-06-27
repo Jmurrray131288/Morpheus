@@ -189,11 +189,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/patients/:patientId/body-composition", async (req, res) => {
     try {
       console.log("Body composition request body:", JSON.stringify(req.body, null, 2));
-      // Convert entryDate string to Date if needed
+      // Auto-timestamp the entry on the backend
       const bodyData = {
         ...req.body,
         patientId: req.params.patientId,
-        entryDate: typeof req.body.entryDate === 'string' ? new Date(req.body.entryDate) : req.body.entryDate,
+        entryDate: new Date(), // Always use current timestamp
       };
       const validatedData = insertBodyCompositionEntrySchema.parse(bodyData);
       console.log("Validated data:", JSON.stringify(validatedData, null, 2));
