@@ -127,6 +127,7 @@ Changelog:
 - June 27, 2025: Added functional sample data buttons for body composition and peptide therapy to demonstrate empty state handling and data population
 - June 27, 2025: Redesigned dashboard to be doctor-focused with Today's Schedule, Priority Alerts, Recent Activity, and Quick Patient Search components arranged for optimal daily practice workflow
 - June 27, 2025: Implemented browser-bar style patient search with live suggestions and clear labeling for intuitive user experience
+- June 27, 2025: Added navigation from today's schedule to patient profiles - clicking "View" now takes you directly to the patient's full medical record
 ```
 
 ## User Preferences

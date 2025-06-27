@@ -1,8 +1,10 @@
 import { Calendar, Clock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 
 interface Appointment {
   id: string;
+  patientId: string;
   patientName: string;
   time: string;
   type: string;
@@ -15,6 +17,7 @@ export default function TodaysSchedule() {
   const appointments: Appointment[] = [
     {
       id: "1",
+      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
       patientName: "Sarah Johnson",
       time: "9:00 AM",
       type: "Annual Physical",
@@ -23,6 +26,7 @@ export default function TodaysSchedule() {
     },
     {
       id: "2", 
+      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
       patientName: "Mike Chen",
       time: "10:00 AM",
       type: "Lab Results Review",
@@ -31,6 +35,7 @@ export default function TodaysSchedule() {
     },
     {
       id: "3",
+      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
       patientName: "Emily Rodriguez",
       time: "11:15 AM", 
       type: "Precision Medicine Consult",
@@ -39,6 +44,7 @@ export default function TodaysSchedule() {
     },
     {
       id: "4",
+      patientId: "cb0d269d-ce37-49fe-ac8e-bfc798f6c020",
       patientName: "David Park",
       time: "1:30 PM",
       type: "Peptide Therapy Follow-up",
@@ -92,9 +98,11 @@ export default function TodaysSchedule() {
                   {appointment.type} • {appointment.duration}
                 </div>
               </div>
-              <Button variant="outline" size="sm" className="text-xs px-2 py-1 ml-3">
-                View
-              </Button>
+              <Link href={`/patients/${appointment.patientId}`}>
+                <Button variant="outline" size="sm" className="text-xs px-2 py-1 ml-3">
+                  View
+                </Button>
+              </Link>
             </div>
           </div>
         ))}
