@@ -3,10 +3,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Plus, Pill, Calendar, Clock } from "lucide-react";
 import QuickSearchBar from "@/components/quick-search-bar";
+import AddMedicationModal from "@/components/modals/add-medication-modal";
 import type { Patient, PrescribedMedication } from "@shared/schema";
 
 export default function MedicationsPage() {
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
+  const [showAddModal, setShowAddModal] = useState(false);
   
   const { data: patients = [] } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
@@ -41,7 +43,7 @@ export default function MedicationsPage() {
             <h2 className="text-xl font-semibold">
               Medications for {selectedPatient.firstName} {selectedPatient.lastName}
             </h2>
-            <Button>
+            <Button onClick={() => setShowAddModal(true)}>
               <Plus className="w-4 h-4 mr-2" />
               Add Medication
             </Button>
@@ -51,7 +53,7 @@ export default function MedicationsPage() {
             <div className="text-center py-12">
               <Pill className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-500 mb-4">No medications recorded</p>
-              <Button variant="outline">
+              <Button variant="outline" onClick={() => setShowAddModal(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add First Medication
               </Button>
@@ -110,6 +112,15 @@ export default function MedicationsPage() {
           <h3 className="text-lg font-medium text-gray-900 mb-2">Select a Patient</h3>
           <p className="text-gray-500">Choose a patient from the dropdown above to view their medications</p>
         </div>
+      )}
+      
+      {/* Add Medication Modal */}
+      {selectedPatientId && (
+        <AddMedicationModal 
+          open={showAddModal}
+          onOpenChange={setShowAddModal}
+          patientId={selectedPatientId}
+        />
       )}
     </div>
   );
