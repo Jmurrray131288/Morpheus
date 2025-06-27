@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Plus, Pill, Calendar, Clock } from "lucide-react";
+import { Plus, Pill, Calendar, Clock, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
 import QuickSearchBar from "@/components/quick-search-bar";
 import AddMedicationModal from "@/components/modals/add-medication-modal";
 import type { Patient, PrescribedMedication } from "@shared/schema";
@@ -9,6 +11,8 @@ import type { Patient, PrescribedMedication } from "@shared/schema";
 export default function MedicationsPage() {
   const [selectedPatientId, setSelectedPatientId] = useState<string>("");
   const [showAddModal, setShowAddModal] = useState(false);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data: patients = [] } = useQuery<Patient[]>({
     queryKey: ["/api/patients"],
@@ -20,6 +24,32 @@ export default function MedicationsPage() {
   });
 
   const selectedPatient = patients.find(p => p.id === selectedPatientId);
+
+  const deleteMedicationMutation = useMutation({
+    mutationFn: async (medicationId: string) => {
+      await apiRequest("DELETE", `/api/medications/${medicationId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/patients/${selectedPatientId}/medications`] });
+      toast({
+        title: "Success",
+        description: "Medication removed successfully",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: "Failed to remove medication",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteMedication = (medicationId: string, medicationName: string) => {
+    if (window.confirm(`Are you sure you want to remove ${medicationName}?`)) {
+      deleteMedicationMutation.mutate(medicationId);
+    }
+  };
 
   return (
     <div className="flex-1 p-6">
@@ -64,9 +94,20 @@ export default function MedicationsPage() {
                 <div key={medication.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-lg">{medication.name}</h3>
-                    <span className={medication.status === "Active" ? "status-active" : "status-inactive"}>
-                      {medication.status || "Unknown"}
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <span className={medication.status === "Active" ? "status-active" : "status-inactive"}>
+                        {medication.status || "Unknown"}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleDeleteMedication(medication.id, medication.name)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={deleteMedicationMutation.isPending}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                   
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
