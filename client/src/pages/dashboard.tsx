@@ -1,7 +1,7 @@
 import { useState } from "react";
 import TodaysSchedule from "@/components/todays-schedule";
 import PriorityAlerts from "@/components/priority-alerts";
-import RecentActivity from "@/components/recent-activity";
+
 import QuickSearchBar from "@/components/quick-search-bar";
 import HealthMetricsCards from "@/components/health-metrics-cards";
 import AddPatientModal from "@/components/modals/add-patient-modal";
@@ -69,9 +69,6 @@ export default function Dashboard() {
             
             {/* Today's Schedule - Full Width */}
             <TodaysSchedule />
-
-            {/* Recent Activity - Full Width */}
-            <RecentActivity />
 
             {/* Selected Patient Health Metrics */}
             {selectedPatient && (
