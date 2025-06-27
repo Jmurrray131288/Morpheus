@@ -152,7 +152,8 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
                 type="monotone"
                 dataKey="weight"
                 stroke="#2563eb"
-                strokeWidth={3}
+                strokeWidth={2}
+                strokeDasharray="5 5"
                 dot={{ fill: "#2563eb", strokeWidth: 2, r: 4 }}
                 name="Weight"
                 connectNulls={false}
@@ -162,7 +163,8 @@ export default function WeightMuscleTrends({ patientId }: WeightMuscleTrendsProp
                 type="monotone"
                 dataKey="muscleMass"
                 stroke="#16a34a"
-                strokeWidth={3}
+                strokeWidth={2}
+                strokeDasharray="5 5"
                 dot={{ fill: "#16a34a", strokeWidth: 2, r: 4 }}
                 name="Muscle Mass"
                 connectNulls={false}
