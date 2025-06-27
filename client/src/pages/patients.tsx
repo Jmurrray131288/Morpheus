@@ -30,6 +30,12 @@ export default function PatientsPage() {
     queryKey: ["/api/patients"],
   });
 
+  // Get all medications across all patients for service analysis
+  const { data: allMedications = [] } = useQuery({
+    queryKey: ["/api/analytics/all-medications"],
+    enabled: patients.length > 0,
+  });
+
   // Calculate practice analytics for dashboard
   const analytics = patients.length > 0 ? {
     totalPatients: patients.length,
@@ -56,6 +62,16 @@ export default function PatientsPage() {
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       return createdDate > thirtyDaysAgo;
     }).length,
+    treatmentTypes: allMedications.reduce((acc: any, med: any) => {
+      const category = med.name.toLowerCase().includes('vitamin') || med.name.toLowerCase().includes('supplement') ? 'Supplements' :
+                     med.name.toLowerCase().includes('insulin') || med.name.toLowerCase().includes('metformin') ? 'Diabetes Care' :
+                     med.name.toLowerCase().includes('blood pressure') || med.name.toLowerCase().includes('lisinopril') ? 'Cardiovascular' :
+                     med.name.toLowerCase().includes('pain') || med.name.toLowerCase().includes('ibuprofen') ? 'Pain Management' :
+                     'General Medicine';
+      acc[category] = (acc[category] || 0) + 1;
+      return acc;
+    }, {}),
+    totalMedications: allMedications.length,
   } : null;
 
   const genderData = analytics ? 
@@ -63,6 +79,9 @@ export default function PatientsPage() {
 
   const ageGroupData = analytics ?
     Object.entries(analytics.ageGroups).map(([group, count]) => ({ name: group, value: count })) : [];
+
+  const treatmentData = analytics && analytics.treatmentTypes ?
+    Object.entries(analytics.treatmentTypes).map(([type, count]) => ({ name: type, value: count })) : [];
 
   // If we have a patient ID in the URL, show the patient profile
   if (params.id) {
@@ -274,27 +293,18 @@ export default function PatientsPage() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Gender Breakdown</CardTitle>
+                <CardTitle className="text-lg font-semibold">Treatment Types</CardTitle>
+                <p className="text-sm text-gray-500">Which services are thriving</p>
               </CardHeader>
               <CardContent>
                 <ResponsiveContainer width="100%" height={200}>
-                  <PieChart>
-                    <Pie
-                      data={genderData}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={60}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {genderData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
+                  <BarChart data={treatmentData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
+                    <YAxis />
                     <Tooltip />
-                  </PieChart>
+                    <Bar dataKey="value" fill="#10B981" />
+                  </BarChart>
                 </ResponsiveContainer>
               </CardContent>
             </Card>

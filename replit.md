@@ -140,6 +140,7 @@ Changelog:
 - June 27, 2025: Converted patients page from card layout to efficient table format for better scalability with 50+ patients - displays essential info in compact rows with quick access to patient profiles
 - June 27, 2025: Fixed API request parameter order bugs in patient and medication editing - resolved HTTP method errors that prevented updates from working properly
 - June 27, 2025: Added comprehensive practice analytics dashboard above patients list - shows total patients, average age, growth trends, demographics with visual charts for age distribution and gender breakdown using real patient data
+- June 27, 2025: Enhanced analytics with treatment types visualization - shows which services are thriving by categorizing medications into supplements, diabetes care, cardiovascular, pain management, and general medicine with real-time data
 ```
 
 ## User Preferences

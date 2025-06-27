@@ -79,6 +79,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Analytics routes
+  app.get("/api/analytics/all-medications", async (req, res) => {
+    try {
+      const patients = await storage.getPatients();
+      const allMedications = [];
+      
+      for (const patient of patients) {
+        const medications = await storage.getPatientMedications(patient.id);
+        allMedications.push(...medications);
+      }
+      
+      res.json(allMedications);
+    } catch (error) {
+      console.error("Error fetching all medications:", error);
+      res.status(500).json({ message: "Failed to fetch all medications" });
+    }
+  });
+
   // Medication routes
   app.get("/api/patients/:patientId/medications", async (req, res) => {
     try {
