@@ -49,7 +49,6 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
   const formSchema = z.object({
     patientId: z.string(),
-    entryDate: z.string().min(1, "Entry date is required"),
     heightInches: z.number().min(1, "Height is required"),
     weightPounds: z.number().min(1, "Weight is required"),
     bodyFatPercentage: z.number().min(0, "Body fat percentage is required"),
@@ -62,7 +61,6 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
     resolver: zodResolver(formSchema),
     defaultValues: {
       patientId,
-      entryDate: new Date().toISOString().split('T')[0],
       heightInches: 0,
       weightPounds: 0,
       bodyFatPercentage: 0,
@@ -73,10 +71,9 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
 
   const mutation = useMutation({
     mutationFn: async (data: FormData) => {
-      const { heightInches, weightPounds, entryDate, ...rest } = data;
+      const { heightInches, weightPounds, ...rest } = data;
       return await apiRequest("POST", `/api/patients/${patientId}/body-composition`, {
         ...rest,
-        entryDate: new Date(entryDate), // Convert string to Date
         heightInches, // Store height in inches
         weightPounds, // Store weight in pounds
         // Convert to metric for legacy fields if needed
@@ -128,20 +125,6 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="entryDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
