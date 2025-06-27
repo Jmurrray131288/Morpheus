@@ -149,6 +149,24 @@ export default function MedicationsPage() {
                       </div>
                     </div>
                   </div>
+                  
+                  {(medication.status === "Inactive" || medication.status === "Discontinued") && medication.discontinuationReason && (
+                    <div className="mt-4 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <div className="flex items-center text-orange-800 mb-2">
+                        <AlertCircle className="w-4 h-4 mr-1" />
+                        <span className="font-medium">Discontinuation Information</span>
+                      </div>
+                      <div className="text-sm text-orange-700 space-y-1">
+                        <div><strong>Reason:</strong> {medication.discontinuationReason}</div>
+                        {medication.discontinuedBy && (
+                          <div><strong>Discontinued by:</strong> {medication.discontinuedBy}</div>
+                        )}
+                        {medication.discontinuationDate && (
+                          <div><strong>Date:</strong> {new Date(medication.discontinuationDate).toLocaleDateString()}</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
