@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Upload, FileText, X, CheckCircle } from "lucide-react";
+import { Upload, FileText, X, CheckCircle, Loader2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,7 @@ export default function UploadLabReportModal({
 }: UploadLabReportModalProps) {
   const [dragActive, setDragActive] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [uploadedFileData, setUploadedFileData] = useState<string | null>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -61,22 +61,32 @@ export default function UploadLabReportModal({
   });
 
   const createLabReportMutation = useMutation({
-    mutationFn: async (data: UploadLabReportForm & { fileData?: string; fileName?: string }) => {
-      return await apiRequest("POST", `/api/patients/${patientId}/lab-records`, {
-        patientId,
-        recordDate: data.recordDate,
-        pdfReports: uploadedFile ? {
-          fileName: uploadedFile.name,
-          fileSize: uploadedFile.size,
-          fileType: uploadedFile.type,
-          uploadDate: new Date().toISOString(),
-          fileData: uploadedFileData,
-        } : null,
-        panels: {
-          reportName: data.reportName,
-          notes: data.notes,
-        },
+    mutationFn: async (data: UploadLabReportForm) => {
+      if (!uploadedFile) {
+        throw new Error("No file selected");
+      }
+
+      const formData = new FormData();
+      formData.append("file", uploadedFile);
+      formData.append("patientId", patientId);
+      formData.append("recordDate", data.recordDate);
+      formData.append("reportName", data.reportName);
+      if (data.notes) {
+        formData.append("notes", data.notes);
+      }
+
+      const response = await fetch(`/api/patients/${patientId}/lab-records/upload`, {
+        method: "POST",
+        body: formData,
+        credentials: "include",
       });
+
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(`${response.status}: ${text}`);
+      }
+
+      return response.json();
     },
     onSuccess: () => {
       toast({
@@ -87,7 +97,6 @@ export default function UploadLabReportModal({
       onOpenChange(false);
       form.reset();
       setUploadedFile(null);
-      setUploadedFileData(null);
     },
     onError: (error) => {
       toast({
@@ -150,15 +159,6 @@ export default function UploadLabReportModal({
 
     setUploadedFile(file);
 
-    // Convert file to base64
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        setUploadedFileData(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
-
     // Auto-fill report name if not already filled
     if (!form.getValues("reportName")) {
       const fileName = file.name.replace(/\.[^/.]+$/, ""); // Remove extension
@@ -174,7 +174,6 @@ export default function UploadLabReportModal({
 
   const removeFile = () => {
     setUploadedFile(null);
-    setUploadedFileData(null);
   };
 
   const onSubmit = (data: UploadLabReportForm) => {
