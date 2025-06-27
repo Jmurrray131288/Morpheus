@@ -45,6 +45,12 @@ export default function QuickSearchBar({ onPatientSelect }: QuickSearchBarProps)
 
   return (
     <div className="relative">
+      <div className="mb-2">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
+          <Search className="w-4 h-4 mr-2" />
+          Patient Search
+        </label>
+      </div>
       <div className="relative">
         <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
         <Input
