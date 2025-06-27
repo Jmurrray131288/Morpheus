@@ -132,6 +132,7 @@ Changelog:
 - June 27, 2025: Updated today's schedule to use real patient data instead of mock appointments - creates seamless workflow from daily schedule to actual patient records
 - June 27, 2025: Enhanced patient profile header with full-width design, gradient background, and professional headshot/initials display for improved patient identification
 - June 27, 2025: Added comprehensive weight and muscle mass trends chart to patient records with dual-axis visualization, trend analysis, and progress tracking capabilities
+- June 27, 2025: Created functional body composition entry form with US measurements (height in inches, weight in pounds) and automatic BMI calculation - replaced confusing dual-button interface with single clean form
 ```
 
 ## User Preferences

@@ -89,10 +89,9 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
   });
 
   const onSubmit = (data: FormData) => {
-    // Auto-calculate BMI if height and weight are provided
+    // Auto-calculate BMI if height and weight are provided (BMI = weight in lbs / (height in inches)^2 * 703)
     if (data.height && data.weight && data.height > 0) {
-      const heightInMeters = data.height / 100;
-      data.bmi = Number((data.weight / (heightInMeters * heightInMeters)).toFixed(1));
+      data.bmi = Number(((data.weight / (data.height * data.height)) * 703).toFixed(1));
     }
     mutation.mutate(data);
   };
@@ -134,7 +133,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
                 name="height"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Height (cm)</FormLabel>
+                    <FormLabel>Height (in)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -155,7 +154,7 @@ export default function AddBodyCompositionModal({ patientId }: AddBodyCompositio
                 name="weight"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Weight (kg)</FormLabel>
+                    <FormLabel>Weight (lbs)</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
