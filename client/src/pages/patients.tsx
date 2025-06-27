@@ -64,8 +64,8 @@ export default function PatientsPage() {
     }
 
     return (
-      <div className="flex-1 p-6">
-        <div className="mb-6">
+      <div className="flex-1">
+        <div className="bg-white border-b border-gray-200 px-6 py-4 mb-6">
           <div className="flex items-center justify-between mb-3">
             <Button 
               variant="ghost" 
@@ -95,20 +95,22 @@ export default function PatientsPage() {
             </p>
           </div>
         </div>
-
-        <div className="space-y-6">
-          <HealthMetricsCards patientId={patient.id} />
-          <MedicationsSection 
-            patientId={patient.id} 
-            onAddMedication={() => {}} 
-          />
-          <LabResultsSection patientId={patient.id} />
-          <VisitNotesSection 
-            patientId={patient.id} 
-            onAddNote={() => {}} 
-          />
-          <PrecisionMedicineSection patientId={patient.id} />
-          <AdvancedTreatmentsSection patientId={patient.id} />
+        
+        <div className="px-6">
+          <div className="space-y-6">
+            <HealthMetricsCards patientId={patient.id} />
+            <MedicationsSection 
+              patientId={patient.id} 
+              onAddMedication={() => {}} 
+            />
+            <LabResultsSection patientId={patient.id} />
+            <VisitNotesSection 
+              patientId={patient.id} 
+              onAddNote={() => {}} 
+            />
+            <PrecisionMedicineSection patientId={patient.id} />
+            <AdvancedTreatmentsSection patientId={patient.id} />
+          </div>
         </div>
       </div>
     );
