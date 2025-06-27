@@ -39,7 +39,7 @@ export default function EditMedicationModal({ medication, patientId }: EditMedic
 
   const updateMedicationMutation = useMutation({
     mutationFn: async (data: any) => {
-      return await apiRequest(`/api/medications/${medication.id}`, "PUT", data);
+      return await apiRequest("PUT", `/api/medications/${medication.id}`, data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/medications`] });
@@ -49,10 +49,11 @@ export default function EditMedicationModal({ medication, patientId }: EditMedic
       });
       setIsOpen(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Medication update error:", error);
       toast({
         title: "Error",
-        description: "Failed to update medication",
+        description: error.message || "Failed to update medication",
         variant: "destructive",
       });
     },

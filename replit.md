@@ -138,6 +138,7 @@ Changelog:
 - June 27, 2025: Implemented medication deletion functionality with confirmation dialogs and trash can icons for safe medication management
 - June 27, 2025: Created comprehensive medication discontinuation system with required reason documentation, staff initials tracking, and audit trail - includes edit modal with status change capabilities and discontinuation info display
 - June 27, 2025: Converted patients page from card layout to efficient table format for better scalability with 50+ patients - displays essential info in compact rows with quick access to patient profiles
+- June 27, 2025: Fixed API request parameter order bugs in patient and medication editing - resolved HTTP method errors that prevented updates from working properly
 ```
 
 ## User Preferences
