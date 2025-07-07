@@ -1,0 +1,16 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres:Sooners%402020@db.czifnstvmmstukcspoaq.supabase.co:5432/postgres"
+}
+
+model Patient {
+  id         String   @id @default(uuid())
+  firstName  String
+  lastName   String
+  birthDate  DateTime
+  createdAt  DateTime @default(now())
+}
