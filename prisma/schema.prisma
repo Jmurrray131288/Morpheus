@@ -8,9 +8,283 @@ datasource db {
 }
 
 model Patient {
-  id         String   @id @default(uuid())
-  firstName  String
-  lastName   String
-  birthDate  DateTime
-  createdAt  DateTime @default(now())
+  id                     String                   @id @default(uuid())
+  first_name             String
+  last_name              String
+  birth_date             DateTime                 @db.Date
+  created_at             DateTime                 @default(now())
+  gender                 String?
+  email                  String?
+  phone                  String?
+  address                String?
+  city                   String?
+  state                  String?
+  zip_code               String?
+  Medications            Medications[]
+  Prescribed_Medications Prescribed_Medications[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Appointments {
+  id               BigInt    @id @default(autoincrement())
+  created_at       DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id       String?
+  provider_id      String?
+  appointment_time DateTime? @db.Time(6)
+  reason           String?
+  status           String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Body_Composition_Entries {
+  id                  BigInt    @id @default(autoincrement())
+  created_at          DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id          String?
+  entry_date          DateTime? @default(now()) @db.Timestamptz(6)
+  height_in           Int?
+  weight_lbs          Int?
+  bmi                 String?
+  bmr                 String?
+  tdee                String?
+  activity_level      String?
+  body_fat_percentage String?
+  total_body_fat      String?
+  skeletal_muscle     String?
+  visceral_fat        String?
+  vo2_max             String?
+  notes               String?
+  sleep               String?
+  nutrition           String?
+  timestamp           DateTime? @default(now()) @db.Timestamp(6)
+
+  @@map("Body Composition Entries")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Cardiovascular {
+  id             BigInt    @id @default(autoincrement())
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id     String?
+  entry_date     DateTime? @default(now()) @db.Timestamp(6)
+  lipids         Json?
+  blood_pressure Int?
+  inflammation   Json?
+  other_markers  Json?
+  risk_factors   Json?
+  medications    Json?
+  interventions  Json?
+  timestamp      DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Diagnoses {
+  id           BigInt    @id @default(autoincrement())
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id   String?
+  icd10_code   String?
+  description  String?
+  diagnosed_at DateTime? @db.Timestamp(6)
+  provider_id  String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Genomic {
+  id          BigInt    @id @default(autoincrement())
+  patient_id  String?
+  report_date String?
+  timestamp   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model IV_Treatments {
+  id         BigInt  @id @default(autoincrement())
+  name       String? @db.VarChar
+  components Json?
+  patient_id String?
+
+  @@map("IV Treatments")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Labs {
+  id              BigInt    @id @default(autoincrement())
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id      String?
+  test_name       String?
+  result_value    String?
+  unit            String?
+  reference_range String?
+  collected_at    DateTime? @default(now()) @db.Timestamp(6)
+  panels          Json?
+  pdf_reports     Json?
+  timestamp       DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Medical_Records {
+  id             BigInt    @id @default(autoincrement())
+  created_at     DateTime  @default(now()) @db.Timestamptz(6)
+  email          String?
+  first_name     String?
+  last_name      String?
+  date_of_birth  DateTime? @db.Date
+  gender         String?
+  contact_number String?
+  updated_at     DateTime? @db.Timestamp(6)
+  patient_id     String?
+
+  @@map("Medical Records")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Medications {
+  id              BigInt    @id @default(autoincrement())
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id      String?
+  medication_name String?
+  dosage          String?
+  route           String?
+  frequency       String?
+  start_date      DateTime? @db.Timestamp(6)
+  end_date        DateTime? @db.Timestamp(6)
+  prescribed_by   String?
+  Patient         Patient?  @relation(fields: [patient_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Metabaolic {
+  id                BigInt    @id @default(autoincrement())
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id        String?
+  entry_date        DateTime? @db.Timestamp(6)
+  glucose_metrics   String?
+  metabolic_markers String?
+  weight_management String?
+  glp1_therapy      String?
+  interventions     String?
+  timestamp         DateTime? @default(now()) @db.Timestamp(6)
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Peptide_Entries {
+  id         BigInt    @id @default(autoincrement())
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  name       String?   @db.VarChar
+  dosage     String?   @db.VarChar
+  frequency  String?   @db.VarChar
+  start_date DateTime? @db.Date
+  status     String?   @db.VarChar
+  end_date   DateTime? @db.Date
+  patient_id String?
+
+  @@map("Peptide Entries")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Prescribed_Medications {
+  id                     BigInt    @id @default(autoincrement())
+  patient_id             String?
+  name                   String?
+  strength               String?
+  dosage                 String?
+  frequency              String?
+  duration               String?
+  instructions           String?
+  start_date             DateTime? @db.Date
+  status                 String?
+  discontinuation_reason String?
+  discontinued_by        String?
+  discontinuation_date   String?
+  medication_entry_id    String?   @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  Patient                Patient?  @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("Prescribed Medications")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Protocols {
+  id             BigInt   @id @default(autoincrement())
+  created_at     DateTime @default(now()) @db.Timestamptz(6)
+  service_id     String?
+  name           String?
+  instructions   String?
+  frequency      String?
+  duration_weeks Int?
+  patient_id     String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Providers {
+  id           BigInt    @id @default(autoincrement())
+  first_name   String?
+  last_name    String?
+  role         String?
+  specialty_id String?
+  email        String?
+  phone        String?
+  created_at   DateTime? @default(now()) @db.Timestamp(6)
+  patient_id   String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Service_Prders {
+  id          BigInt    @id(map: "service_orders_pkey") @default(autoincrement())
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  patient_id  String?
+  service_id  String?
+  provider_id String?
+  ordered_at  DateTime? @db.Timestamp(6)
+  status      String?
+  notes       String?
+
+  @@map("Service Prders")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Services {
+  id               BigInt   @id @default(autoincrement())
+  created_at       DateTime @default(now()) @db.Timestamptz(6)
+  name             String?
+  category         String?
+  description      String?
+  price            Decimal? @db.Decimal
+  duration_minutes Int?
+  patient_id       String?
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Supplement_Entries {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  name       String?
+  dosage     String?
+  details    Json?
+  patient_id String?
+
+  @@map("Supplement Entries")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Visit_Notes {
+  id         BigInt   @id @default(autoincrement())
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  patient_id String?
+  note       String?
+
+  @@map("Visit Notes")
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Vitals {
+  id                       BigInt   @id @default(autoincrement())
+  created_at               DateTime @default(now()) @db.Timestamptz(6)
+  patient_id               String?
+  recorded_at              String?
+  height_in                Decimal? @db.Decimal
+  weight_lbs               Decimal? @db.Decimal
+  blodd_pressure_systolic  Int?
+  blood_pressure_diastolic Int?
+  heart_rate               Int?
+  temperature_f            Decimal? @db.Decimal
+  respiratory_rate         Int?
 }
