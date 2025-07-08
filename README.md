@@ -8,6 +8,8 @@ A comprehensive Electronic Medical Records (EMR) system built for modern precisi
 - Complete patient profiles with demographics and medical history
 - Efficient patient search and selection interface
 - Real-time patient data updates
+- <!-- trigger redeploy -->
+
 
 ### Health Metrics Tracking
 - **Body Composition**: BMI, body fat percentage, muscle mass tracking with trend analysis
