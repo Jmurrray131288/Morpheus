@@ -12,35 +12,9 @@ interface Alert {
 }
 
 export default function PriorityAlerts() {
-  const alerts: Alert[] = [
-    {
-      id: "1",
-      type: "critical",
-      title: "Critical Lab Result",
-      description: "Elevated troponin levels detected",
-      patientName: "Sarah Johnson",
-      action: "Review immediately",
-      timestamp: "2 hours ago"
-    },
-    {
-      id: "2",
-      type: "warning", 
-      title: "Medication Interaction",
-      description: "New prescription conflicts with existing therapy",
-      patientName: "Mike Chen",
-      action: "Adjust dosage",
-      timestamp: "4 hours ago"
-    },
-    {
-      id: "3",
-      type: "info",
-      title: "Follow-up Due",
-      description: "Peptide therapy progress check scheduled",
-      patientName: "Emily Rodriguez", 
-      action: "Schedule appointment",
-      timestamp: "1 day ago"
-    }
-  ];
+  // TODO: Replace with actual priority alerts from database
+  // For now, no alerts until a real alert system is implemented
+  const alerts: Alert[] = [];
 
   const getAlertStyle = (type: string) => {
     switch (type) {
