@@ -20,8 +20,8 @@ model patient {
   city                   String?
   state                  String?
   zip_code               String?
-  Medications            Medications[]
-  Prescribed_Medications Prescribed_Medications[]
+  medications            medications[]
+  prescribed_Medications prescribed_Medications[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
