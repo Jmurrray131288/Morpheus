@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = "postgresql://postgres:TexasRangers%402020@db.czifnstvmmstukcspoaq.supabase.co:5432/postgres"
+  url      = "url = "postgresql://postgres:TexasRangers%402020@aws-0-us-east-2.pooler.supabase.com:5432/postgres?pgbouncer=true"
 }
 
 model patient {
