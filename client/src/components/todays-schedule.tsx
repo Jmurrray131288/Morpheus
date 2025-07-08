@@ -19,33 +19,9 @@ export default function TodaysSchedule() {
     queryKey: ["/api/patients"],
   });
 
-  // Generate realistic appointments using actual patient data
-  const appointments: Appointment[] = patients.slice(0, 5).map((patient, index) => {
-    const appointmentTypes = [
-      "Annual Physical",
-      "Lab Results Review", 
-      "Precision Medicine Consult",
-      "Peptide Therapy Follow-up",
-      "Health Metrics Review",
-      "Medication Review",
-      "Follow-up Visit"
-    ];
-    
-    const times = ["9:00 AM", "10:00 AM", "11:15 AM", "1:30 PM", "3:00 PM"];
-    const durations = ["30 min", "45 min", "60 min"];
-    const statuses: ("upcoming" | "in-progress" | "completed")[] = 
-      index === 3 ? ["completed"] : index === 1 ? ["in-progress"] : ["upcoming"];
-
-    return {
-      id: `apt-${patient.id}`,
-      patientId: patient.id,
-      patientName: `${patient.firstName} ${patient.lastName}`,
-      time: times[index] || "4:00 PM",
-      type: appointmentTypes[index] || "Follow-up Visit",
-      duration: durations[index % 3],
-      status: statuses[0]
-    };
-  });
+  // TODO: Replace with actual appointment data from database
+  // For now, no appointments are scheduled until a real scheduling system is implemented
+  const appointments: Appointment[] = [];
 
   const getStatusColor = (status: string) => {
     switch (status) {
