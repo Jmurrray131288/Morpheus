@@ -1,9 +1,19 @@
-import { User, Settings, Activity, Users, Pill, TestTube, Heart, Dna, FileText } from "lucide-react";
+import {
+  User,
+  Settings,
+  Activity,
+  Users,
+  Pill,
+  TestTube,
+  Heart,
+  Dna,
+  FileText,
+} from "lucide-react";
 import { Link, useLocation } from "wouter";
 
 export default function Sidebar() {
   const [location] = useLocation();
-  
+
   const navigationItems = [
     { icon: Activity, label: "Dashboard", path: "/", active: location === "/" },
     { icon: Users, label: "Patients", path: "/patients", active: location === "/patients" },
@@ -27,17 +37,11 @@ export default function Sidebar() {
             <p className="text-sm text-gray-500">EMR System</p>
           </div>
         </div>
-        
-        {/* User Info */}
+
+        {/* Settings Icon */}
         <div className="flex items-center justify-between mt-3">
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
-              <User className="w-3 h-3 text-white" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-900">Dr. Sarah Chen</p>
-              <p className="text-xs text-gray-500">Healthcare Provider</p>
-            </div>
+          <div className="w-6 h-6 bg-gray-400 rounded-full flex items-center justify-center">
+            <User className="w-3 h-3 text-white" />
           </div>
           <button className="text-gray-400 hover:text-gray-600">
             <Settings className="w-4 h-4" />
