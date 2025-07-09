@@ -25,6 +25,7 @@ import { z } from "zod";
 const medicationFormSchema = z.object({
   name: z.string().min(1, "Medication name is required"),
   strength: z.string().optional(),
+  route: z.string().optional(),
   dosage: z.string().optional(),
   frequency: z.string().optional(),
   duration: z.string().optional(),
@@ -50,6 +51,7 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
     defaultValues: {
       name: "",
       strength: "",
+      route: "",
       dosage: "",
       frequency: "",
       duration: "",
@@ -128,18 +130,32 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
               
               <FormField
                 control={form.control}
-                name="dosage"
+                name="route"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Dosage</FormLabel>
+                    <FormLabel>Route</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., 1 tablet" />
+                      <Input {...field} placeholder="e.g., Oral, Injection" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
+
+            <FormField
+              control={form.control}
+              name="dosage"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dosage</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="e.g., 1 tablet" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
