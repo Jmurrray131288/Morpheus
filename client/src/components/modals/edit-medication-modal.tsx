@@ -244,21 +244,21 @@ export default function EditMedicationModal({ medication, patientId }: EditMedic
           )}
           
           <div className="flex justify-end space-x-2 pt-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={updateMedicationMutation.isPending}
-              className={isDiscontinuing ? "bg-orange-600 hover:bg-orange-700" : ""}
-            >
-              {updateMedicationMutation.isPending ? "Updating..." : isDiscontinuing ? "Discontinue Medication" : "Update Medication"}
-            </Button>
-          </div>
+  <Button
+    type="button"
+    variant="outline"
+    onClick={() => onOpenChange(false)}
+  >
+    Cancel
+  </Button>
+
+  <Button
+    type="submit"
+    disabled={false} // Temporarily always enabled
+  >
+    {createMedicationMutation.isPending ? "Adding..." : "Add Medication"}
+  </Button>
+</div>
         </form>
       </DialogContent>
     </Dialog>
