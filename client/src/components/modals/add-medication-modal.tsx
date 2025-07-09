@@ -187,24 +187,30 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
               />
             </div>
 
-            <div className="flex justify-end space-x-2 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                disabled={createMedicationMutation.isPending}
-              >
-                {createMedicationMutation.isPending ? "Adding..." : "Add Medication"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
-  );
-}
+         <div className="flex justify-end space-x-2 pt-4">
+  <Button
+    type="button"
+    variant="outline"
+    onClick={() => onOpenChange(false)}
+  >
+    Cancel
+  </Button>
+
+  <Button
+    type="submit"
+    disabled={false} // ⛔ TEMPORARY: force enabled for debugging
+  >
+    {createMedicationMutation.isPending ? "Adding..." : "Add Medication"}
+  </Button>
+</div>
+
+{/* 🧪 TEMPORARY DEBUG: Show form validation errors */}
+<pre className="text-xs text-red-500 mt-2">
+  {JSON.stringify(form.formState.errors, null, 2)}
+</pre>
+
+</form>
+</Form>
+</DialogContent>
+</Dialog>
+
