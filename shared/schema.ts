@@ -333,9 +333,9 @@ export const insertPatientSchema = createInsertSchema(patients).omit({
   contactNumber: z.string().optional().transform(val => val === "" ? null : val),
 });
 
-export const insertMedicationSchema = createInsertSchema(medicationEntries).omit({
+export const insertMedicationSchema = createInsertSchema(medications).omit({
   id: true,
-  timestamp: true,
+  created_at: true,
 });
 
 export const insertPrescribedMedicationSchema = createInsertSchema(prescribedMedications).omit({
