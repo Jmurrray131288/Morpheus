@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -20,16 +22,16 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { z } from "zod";
 
+// Simple form schema that matches your actual database exactly
 const medicationFormSchema = z.object({
   name: z.string().min(1, "Medication name is required"),
-  strength: z.string().optional(),
-  dosage: z.string().optional(),
-  frequency: z.string().optional(),
-  duration: z.string().optional(),
-  instructions: z.string().optional(),
-  startDate: z.string().optional(),
+  strength: z.string().optional().nullable(),
+  dosage: z.string().optional().nullable(),
+  frequency: z.string().optional().nullable(),
+  duration: z.string().optional().nullable(),
+  instructions: z.string().optional().nullable(),
+  startDate: z.string().optional().nullable(),
   status: z.string().default("Active"),
 });
 
@@ -61,10 +63,9 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
 
   const createMedicationMutation = useMutation({
     mutationFn: async (data: MedicationFormData) => {
-      return await apiRequest(`/api/patients/${patientId}/medications`, "POST", {
-        patientId,
-        ...data,
-      });
+      console.log("Sending medication data:", data);
+      const response = await apiRequest(`/api/patients/${patientId}/medications`, "POST", data);
+      return response;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/medications`] });
@@ -75,16 +76,18 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
       form.reset();
       onOpenChange(false);
     },
-    onError: (error) => {
+    onError: (error: any) => {
+      console.error("Medication creation error:", error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to add medication",
         variant: "destructive",
       });
     },
   });
 
   const onSubmit = (data: MedicationFormData) => {
+    console.log("Form submitted with data:", data);
     createMedicationMutation.mutate(data);
   };
 
@@ -104,7 +107,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                 <FormItem>
                   <FormLabel>Medication Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter medication name" />
+                    <Input 
+                      {...field} 
+                      placeholder="Enter medication name"
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -118,7 +125,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                 <FormItem>
                   <FormLabel>Strength</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., 500mg" />
+                    <Input 
+                      {...field} 
+                      placeholder="e.g., 500mg"
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,7 +143,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                 <FormItem>
                   <FormLabel>Dosage</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., 1 tablet" />
+                    <Input 
+                      {...field} 
+                      placeholder="e.g., 1 tablet"
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -147,7 +162,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                   <FormItem>
                     <FormLabel>Frequency</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., Twice daily" />
+                      <Input 
+                        {...field} 
+                        placeholder="e.g., Twice daily"
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -161,7 +180,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                   <FormItem>
                     <FormLabel>Duration</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., 30 days" />
+                      <Input 
+                        {...field} 
+                        placeholder="e.g., 30 days"
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -176,7 +199,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                 <FormItem>
                   <FormLabel>Instructions</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., Take with food" />
+                    <Input 
+                      {...field} 
+                      placeholder="e.g., Take with food"
+                      value={field.value || ""}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -191,7 +218,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                   <FormItem>
                     <FormLabel>Start Date</FormLabel>
                     <FormControl>
-                      <Input {...field} type="date" />
+                      <Input 
+                        {...field} 
+                        type="date"
+                        value={field.value || ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -204,7 +235,7 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                    <Select onValueChange={field.onChange} value={field.value || "Active"}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select status" />
