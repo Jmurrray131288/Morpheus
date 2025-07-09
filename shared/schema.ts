@@ -49,10 +49,17 @@ export const patients = pgTable("patients", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const medicationEntries = pgTable("medication_entries", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  patientId: uuid("patient_id").notNull(),
-  timestamp: timestamp("timestamp").defaultNow(),
+export const medications = pgTable("medications", {
+  id: serial("id").primaryKey(),
+  created_at: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  patient_id: text("patient_id"),
+  medication_name: text("medication_name").notNull(),
+  strength: text("strength"),
+  dosage: text("dosage").notNull(),
+  route: text("route"),
+  frequency: text("frequency").notNull(),
+  start_date: text("start_date"),
+  status: text("status").notNull(),
 });
 
 export const prescribedMedications = pgTable("prescribed_medications", {
