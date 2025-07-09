@@ -56,16 +56,10 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
-  const port = parseInt(process.env.PORT || "5000", 10);
-  server.listen(
-    {
-      port,
-      host: "0.0.0.0",
-      reusePort: true,
-    },
-    () => {
-      log(`serving on port ${port}`);
-    }
-  );
+ const port = parseInt(process.env.PORT || "5000", 10);
+
+server.listen(port, "0.0.0.0", () => {
+  log(`🚀 Server ready on port ${port}`);
+});
 })(); // ← closes the async IIFE
 
