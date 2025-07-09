@@ -57,7 +57,7 @@ export const medicationEntries = pgTable("medication_entries", {
 
 export const prescribedMedications = pgTable("prescribed_medications", {
   id: uuid("id").primaryKey().defaultRandom(),
-  medicationEntryId: uuid("medication_entry_id").notNull(),
+  medication_name: uuid("medication_entry_id").notNull(),
   patientId: uuid("patient_id").notNull(),
   name: varchar("name").notNull(),
   strength: varchar("strength"),
@@ -139,7 +139,7 @@ export const labRecords = pgTable("lab_records", {
 
 export const peptideEntries = pgTable("peptide_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  medicationEntryId: uuid("medication_entry_id").notNull(),
+  medication_name: uuid("medication_entry_id").notNull(),
   name: varchar("name"),
   dosage: varchar("dosage"),
   frequency: varchar("frequency"),
@@ -149,21 +149,21 @@ export const peptideEntries = pgTable("peptide_entries", {
 
 export const otherMedicationEntries = pgTable("other_medication_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  medicationEntryId: uuid("medication_entry_id").notNull(),
+  medication_name: uuid("medication_entry_id").notNull(),
   name: varchar("name"),
   details: jsonb("details"),
 });
 
 export const ivTreatmentEntries = pgTable("iv_treatment_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  medicationEntryId: uuid("medication_entry_id").notNull(),
+  medication_name: uuid("medication_entry_id").notNull(),
   name: varchar("name"),
   components: jsonb("components"),
 });
 
 export const supplementEntries = pgTable("supplement_entries", {
   id: uuid("id").primaryKey().defaultRandom(),
-  medicationEntryId: uuid("medication_entry_id").notNull(),
+  medication_name: uuid("medication_entry_id").notNull(),
   name: varchar("name"),
   dosage: varchar("dosage"),
   details: jsonb("details"),
@@ -221,8 +221,8 @@ export const medicationEntriesRelations = relations(medicationEntries, ({ one, m
 }));
 
 export const prescribedMedicationsRelations = relations(prescribedMedications, ({ one }) => ({
-  medicationEntry: one(medicationEntries, {
-    fields: [prescribedMedications.medicationEntryId],
+  medication_name: one(medicationEntries, {
+    fields: [prescribedMedications.medication_name],
     references: [medicationEntries.id],
   }),
   patient: one(patients, {
@@ -267,29 +267,29 @@ export const labRecordsRelations = relations(labRecords, ({ one }) => ({
 }));
 
 export const peptideEntriesRelations = relations(peptideEntries, ({ one }) => ({
-  medicationEntry: one(medicationEntries, {
-    fields: [peptideEntries.medicationEntryId],
+  medication_name: one(medicationEntries, {
+    fields: [peptideEntries.medication_name],
     references: [medicationEntries.id],
   }),
 }));
 
 export const otherMedicationEntriesRelations = relations(otherMedicationEntries, ({ one }) => ({
-  medicationEntry: one(medicationEntries, {
-    fields: [otherMedicationEntries.medicationEntryId],
+  medication_namey: one(medicationEntries, {
+    fields: [otherMedicationEntries.medication_name],
     references: [medicationEntries.id],
   }),
 }));
 
 export const ivTreatmentEntriesRelations = relations(ivTreatmentEntries, ({ one }) => ({
-  medicationEntry: one(medicationEntries, {
-    fields: [ivTreatmentEntries.medicationEntryId],
+  medication_name: one(medicationEntries, {
+    fields: [ivTreatmentEntries.medication_name],
     references: [medicationEntries.id],
   }),
 }));
 
 export const supplementEntriesRelations = relations(supplementEntries, ({ one }) => ({
-  medicationEntry: one(medicationEntries, {
-    fields: [supplementEntries.medicationEntryId],
+  medication_name: one(medicationEntries, {
+    fields: [supplementEntries.medication_name],
     references: [medicationEntries.id],
   }),
 }));
@@ -326,7 +326,7 @@ export const insertPatientSchema = createInsertSchema(patients).omit({
   contactNumber: z.string().optional().transform(val => val === "" ? null : val),
 });
 
-export const insertMedicationEntrySchema = createInsertSchema(medicationEntries).omit({
+export const insertMedicationSchema = createInsertSchema(medicationEntries).omit({
   id: true,
   timestamp: true,
 });
@@ -392,8 +392,8 @@ export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
 export type Patient = typeof patients.$inferSelect;
 export type InsertPatient = z.infer<typeof insertPatientSchema>;
-export type MedicationEntry = typeof medicationEntries.$inferSelect;
-export type InsertMedicationEntry = z.infer<typeof insertMedicationEntrySchema>;
+export type Medication = typeof medicationEntries.$inferSelect;
+export type InsertMedication = z.infer<typeof insertMedicationSchema>;
 export type PrescribedMedication = typeof prescribedMedications.$inferSelect;
 export type InsertPrescribedMedication = z.infer<typeof insertPrescribedMedicationSchema>;
 export type VisitNote = typeof visitNotes.$inferSelect;
