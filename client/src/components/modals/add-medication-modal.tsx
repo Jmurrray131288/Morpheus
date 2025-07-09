@@ -24,7 +24,6 @@ import { insertPrescribedMedicationSchema, type InsertPrescribedMedication } fro
 import { z } from "zod";
 
 const medicationFormSchema = insertPrescribedMedicationSchema.omit({
-  medicationEntryId: true,
   patientId: true,
 });
 
@@ -54,7 +53,7 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
 
   const createMedicationMutation = useMutation({
     mutationFn: async (data: MedicationFormData) => {
-      await apiRequest("POST", `/api/patients/${patientId}/medications`, data);
+      return await apiRequest(`/api/patients/${patientId}/medications`, "POST", data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/medications`] });
