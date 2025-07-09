@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Morpheus EMR System
 
 A comprehensive Electronic Medical Records (EMR) system built for modern precision medicine practices. Morpheus provides healthcare professionals with advanced tools for patient management, health metrics tracking, medication management, and clinical documentation.
@@ -174,3 +175,6 @@ This project is proprietary software developed for healthcare practice managemen
 ## 🏥 About
 
 Morpheus EMR is designed specifically for precision medicine practices, providing advanced tools for comprehensive patient care management, health optimization, and clinical excellence.
+=======
+# Morpheus EMR
+>>>>>>> 15c8e8a (Initial commit with README)
