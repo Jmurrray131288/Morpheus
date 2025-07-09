@@ -42,11 +42,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
   const form = useForm<MedicationFormData>({
     resolver: zodResolver(medicationFormSchema),
     defaultValues: {
-      name: "",
-      strength: "",
+      medication_name: "",
+      route: "",
       dosage: "",
       frequency: "",
-      startDate: "",
+      start_date: "",
       status: "Active",
     },
   });
