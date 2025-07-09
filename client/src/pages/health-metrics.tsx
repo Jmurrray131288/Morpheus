@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Activity, TrendingUp, Plus } from "lucide-react";
+import AddBodyCompositionModal from "@/components/modals/add-body-composition-modal";
+import AddCardiovascularModal from "@/components/modals/add-cardiovascular-modal";
+import AddMetabolicModal from "@/components/modals/add-metabolic-modal";
 import EditBodyCompositionModal from "@/components/modals/edit-body-composition-modal";
 import type { Patient, BodyCompositionEntry, CardiovascularHealthEntry, MetabolicHealthEntry } from "@shared/schema";
 
@@ -71,10 +74,7 @@ export default function HealthMetricsPage() {
                 <Activity className="w-5 h-5 mr-2 text-green-500" />
                 Body Composition
               </h3>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Entry
-              </Button>
+              <AddBodyCompositionModal patientId={selectedPatientId} />
             </div>
             
             {bodyComposition.length === 0 ? (
@@ -120,10 +120,7 @@ export default function HealthMetricsPage() {
                 <Heart className="w-5 h-5 mr-2 text-red-500" />
                 Cardiovascular Health
               </h3>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Entry
-              </Button>
+              <AddCardiovascularModal patientId={selectedPatientId} />
             </div>
             
             {cardiovascular.length === 0 ? (
@@ -170,10 +167,7 @@ export default function HealthMetricsPage() {
                 <TrendingUp className="w-5 h-5 mr-2 text-blue-500" />
                 Metabolic Health
               </h3>
-              <Button variant="outline" size="sm">
-                <Plus className="w-4 h-4 mr-1" />
-                Add Entry
-              </Button>
+              <AddMetabolicModal patientId={selectedPatientId} />
             </div>
             
             {metabolic.length === 0 ? (
