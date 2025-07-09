@@ -74,7 +74,11 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
   });
 
   const onSubmit = (data: MedicationFormData) => {
-    createMedicationMutation.mutate(data);
+  console.log("⏩ Submitting medication:", data);
+  console.log("⛔ Form errors:", form.formState.errors);
+  createMedicationMutation.mutate(data);
+};
+
   };
 
   return (
