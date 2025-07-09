@@ -144,6 +144,7 @@ model medications {
   medication_name String?
   dosage          String?
   route           String?
+  strength        String?
   frequency       String?
   start_date      DateTime? @db.Timestamp(6)
   end_date        DateTime? @db.Timestamp(6)
