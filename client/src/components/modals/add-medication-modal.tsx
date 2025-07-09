@@ -20,11 +20,17 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertPrescribedMedicationSchema, type InsertPrescribedMedication } from "@shared/schema";
 import { z } from "zod";
 
-const medicationFormSchema = insertPrescribedMedicationSchema.omit({
-  patientId: true,
+const medicationFormSchema = z.object({
+  name: z.string().min(1, "Medication name is required"),
+  strength: z.string().optional(),
+  dosage: z.string().optional(),
+  frequency: z.string().optional(),
+  duration: z.string().optional(),
+  instructions: z.string().optional(),
+  startDate: z.string().optional(),
+  status: z.string().default("Active"),
 });
 
 type MedicationFormData = z.infer<typeof medicationFormSchema>;
@@ -42,24 +48,30 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
   const form = useForm<MedicationFormData>({
     resolver: zodResolver(medicationFormSchema),
     defaultValues: {
-      medication_name: "",
+      name: "",
       strength: "",
       dosage: "",
-      route: "",
       frequency: "",
-      start_date: "",
+      duration: "",
+      instructions: "",
+      startDate: "",
       status: "Active",
     },
   });
 
   const createMedicationMutation = useMutation({
     mutationFn: async (data: MedicationFormData) => {
-      console.log("Calling API with data:", data);
-      return await apiRequest(`/api/patients/${patientId}/medications`, "POST", data);
+      return await apiRequest(`/api/patients/${patientId}/medications`, "POST", {
+        patientId,
+        ...data,
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/medications`] });
-      toast({ title: "Success", description: "Medication added successfully" });
+      toast({
+        title: "Success",
+        description: "Medication added successfully",
+      });
       form.reset();
       onOpenChange(false);
     },
@@ -73,8 +85,6 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
   });
 
   const onSubmit = (data: MedicationFormData) => {
-    console.log("Submitting form with data:", data);
-    console.log("Form errors:", form.formState.errors);
     createMedicationMutation.mutate(data);
   };
 
@@ -84,17 +94,17 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
         <DialogHeader>
           <DialogTitle>Add New Medication</DialogTitle>
         </DialogHeader>
-
+        
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="medication_name"
+              name="name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Medication Name</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., Lisinopril" />
+                    <Input {...field} placeholder="Enter medication name" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -109,7 +119,37 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
                   <FormItem>
                     <FormLabel>Strength</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., 10mg" />
+                      <Input {...field} placeholder="e.g., 500mg" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="dosage"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Dosage</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., 1 tablet" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="frequency"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Frequency</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="e.g., Twice daily" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -118,12 +158,12 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
 
               <FormField
                 control={form.control}
-                name="route"
+                name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Route</FormLabel>
+                    <FormLabel>Duration</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="e.g., Oral" />
+                      <Input {...field} placeholder="e.g., 30 days" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,68 +173,56 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
 
             <FormField
               control={form.control}
-              name="dosage"
+              name="instructions"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Dosage</FormLabel>
+                  <FormLabel>Instructions</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="e.g., 1 tablet" />
+                    <Input {...field} placeholder="e.g., Take with food" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="frequency"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Frequency</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="e.g., Once daily" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="start_date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Start Date</FormLabel>
-                  <FormControl>
-                    <Input {...field} type="date" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value || ""}>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="startDate"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Start Date</FormLabel>
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
+                      <Input {...field} type="date" />
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                      <SelectItem value="Discontinued">Discontinued</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value || ""}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select status" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                        <SelectItem value="Discontinued">Discontinued</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
             <div className="flex justify-end space-x-2 pt-4">
               <Button
@@ -204,19 +232,13 @@ export default function AddMedicationModal({ open, onOpenChange, patientId }: Ad
               >
                 Cancel
               </Button>
-
               <Button
                 type="submit"
-                disabled={false} // 🧪 TEMPORARILY force-enabled for debugging
+                disabled={createMedicationMutation.isPending}
               >
                 {createMedicationMutation.isPending ? "Adding..." : "Add Medication"}
               </Button>
             </div>
-
-            {/* 🧪 TEMPORARY DEBUG PANEL */}
-            <pre className="text-xs text-red-500 mt-2">
-              {JSON.stringify(form.formState.errors, null, 2)}
-            </pre>
           </form>
         </Form>
       </DialogContent>
