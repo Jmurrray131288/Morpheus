@@ -7,10 +7,10 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Clean npm cache (helps with locked directories)
+# Clean npm cache to avoid locked folders
 RUN npm cache clean --force
 
-# Install dependencies with verbose output
+# Install dependencies without dev packages, with verbose output
 RUN npm ci --omit=dev --verbose
 
 # Copy application source code
@@ -24,4 +24,3 @@ EXPOSE 5000
 
 # Start the application
 CMD ["npm", "start"]
-
