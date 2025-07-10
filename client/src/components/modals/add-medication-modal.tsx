@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function MedicationModal({ patientId, onClose, onSaved }) {
   const [form, setForm] = useState({
