@@ -15,11 +15,11 @@ Runtime: Node.js with Express.js server
 Language: TypeScript with ES modules
 API Design: RESTful API architecture
 Session Management: Express sessions with PostgreSQL storage
-Database ORM: Drizzle ORM for type-safe database operations
+Database Client: Supabase client for type-safe database operations
 Data Storage Solutions
 Primary Database: PostgreSQL via Neon serverless
 Session Storage: PostgreSQL-backed session store using connect-pg-simple
-Schema Management: Drizzle migrations for database schema versioning
+Schema Management: Supabase database with direct SQL schema management
 Key Components
 Patient Management System
 Comprehensive patient records with demographics, contact information, and medical history
@@ -166,5 +166,9 @@ Changelog:
 - July 9, 2025: Updated all health metrics modals to work with production Prisma/Supabase database structure - fixed API request formats, field name mappings, and data type conversions for cardiovascular, metabolic, and body composition entries
 - July 10, 2025: Completely fixed medication system - removed all broken medicationEntry/medicationEntryId references from routes, storage, and schema; updated medication modal to work directly with prescribed_medications table; cleaned up advanced treatments to work without intermediate medication entries
 - July 10, 2025: **MAJOR: Replaced Drizzle ORM with Supabase client** - eliminated all production build errors by removing complex ORM bundling issues; created clean database layer using your exact Prisma schema structure; significantly reduced bundle size and complexity while maintaining full EMR functionality
+- July 10, 2025: **DEPLOYMENT READY: Complete package-lock.json sync** - regenerated and uploaded updated lock file with all Supabase dependencies to GitHub repository; resolved npm ci deployment errors; production deployment now fully functional with new architecture
+- July 10, 2025: **FINAL DEPLOYMENT FIX: Updated Render configuration** - modified render.yaml to force clean package lock regeneration during build; fixed remaining authentication and RLS database references; eliminated all deployment version mismatch errors
+- July 10, 2025: **RAILWAY DEPLOYMENT: Added Procfile configuration** - discovered user deploying on Railway platform instead of Render; created Procfile with explicit build commands to resolve package.json file path issues and force proper dependency installation sequence
+- July 10, 2025: **COMPLETE DRIZZLE REMOVAL: Clean Supabase architecture** - completely eliminated all remaining Drizzle ORM references from authentication.ts, routes.ts, and codebase; replaced with clean Supabase executeQuery calls; removed drizzle-orm, drizzle-zod, drizzle-kit packages; updated replit.md documentation; fixed all database operations to use proper SQL with snake_case field names
 User Preferences
 Preferred communication style: Simple, everyday language.
