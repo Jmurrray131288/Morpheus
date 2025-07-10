@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with verbose output
-RUN npm ci --only=production --verbose
+# Clean npm cache (helps with locked directories)
+RUN npm cache clean --force
+
+# Install dependencies with verbose output (recommended flag swap)
+RUN npm ci --omit=dev --verbose
 
 # Copy application source code
 COPY . .
