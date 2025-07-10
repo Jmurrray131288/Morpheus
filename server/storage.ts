@@ -1,6 +1,6 @@
 import {
   patients,
-  medicationEntries,
+  medications,
   prescribedMedications,
   visitNotes,
   bodyCompositionEntries,
@@ -18,8 +18,8 @@ import {
   type UpsertUser,
   type Patient,
   type InsertPatient,
-  type MedicationEntry,
-  type InsertMedicationEntry,
+  type Medication,
+  type InsertMedication,
   type PrescribedMedication,
   type InsertPrescribedMedication,
   type VisitNote,
@@ -44,13 +44,18 @@ import {
   type InsertPrecisionLabReport,
   type PrecisionTest,
   type InsertPrecisionTest,
-} from "@shared/schema";
+} from "../shared/schema";
 import { db } from "./db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 
 export interface IStorage {
   // User operations (required for auth)
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: UpsertUser): Promise<User>;
+  updateUser(id: string, user: Partial<UpsertUser>): Promise<User>;
+  deleteUser(id: string): Promise<void>;
+  getUsers(): Promise<User[]>;
   upsertUser(user: UpsertUser): Promise<User>;
 
   // Patient operations
@@ -62,7 +67,6 @@ export interface IStorage {
 
   // Medication operations
   getPatientMedications(patientId: string): Promise<PrescribedMedication[]>;
-  createMedicationEntry(entry: InsertMedicationEntry): Promise<MedicationEntry>;
   createPrescribedMedication(medication: InsertPrescribedMedication): Promise<PrescribedMedication>;
   updatePrescribedMedication(id: string, medication: Partial<InsertPrescribedMedication>): Promise<PrescribedMedication>;
   deletePrescribedMedication(id: string): Promise<void>;
@@ -110,6 +114,42 @@ export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
+  async createUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values({
+        ...userData,
+        id: userData.id || crypto.randomUUID(),
+      })
+      .returning();
+    return user;
+  }
+
+  async updateUser(id: string, userData: Partial<UpsertUser>): Promise<User> {
+    const [user] = await db
+      .update(users)
+      .set({
+        ...userData,
+        updatedAt: new Date(),
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return user;
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await db.select().from(users);
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
@@ -164,10 +204,7 @@ export class DatabaseStorage implements IStorage {
       .orderBy(desc(prescribedMedications.startDate));
   }
 
-  async createMedicationEntry(entry: InsertMedicationEntry): Promise<MedicationEntry> {
-    const [newEntry] = await db.insert(medicationEntries).values(entry).returning();
-    return newEntry;
-  }
+  // Removed createMedicationEntry - not needed for production database
 
   async createPrescribedMedication(medication: InsertPrescribedMedication): Promise<PrescribedMedication> {
     const [newMedication] = await db.insert(prescribedMedications).values(medication).returning();
@@ -216,16 +253,69 @@ export class DatabaseStorage implements IStorage {
 
   // Health metrics operations
   async getPatientBodyComposition(patientId: string): Promise<BodyCompositionEntry[]> {
-    return await db
-      .select()
-      .from(bodyCompositionEntries)
-      .where(eq(bodyCompositionEntries.patientId, patientId))
-      .orderBy(desc(bodyCompositionEntries.entryDate));
+    const result = await db.execute(sql`
+      SELECT id, patient_id, entry_date, height_in, weight_lbs, bmi, bmr, tdee, 
+             activity_level, body_fat_percentage, total_body_fat, skeletal_muscle, 
+             visceral_fat, vo2_max, notes, sleep, nutrition, created_at, timestamp
+      FROM "Body Composition Entries" 
+      WHERE patient_id = ${patientId}
+      ORDER BY entry_date DESC
+    `);
+    
+    return result.rows.map((row: any) => ({
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      heightIn: row.height_in,
+      weightLbs: row.weight_lbs,
+      bmi: row.bmi,
+      bmr: row.bmr,
+      tdee: row.tdee,
+      activityLevel: row.activity_level,
+      bodyFatPerc: row.body_fat_percentage,
+      totalBodyFat: row.total_body_fat,
+      skeletalMusc: row.skeletal_muscle,
+      visceralFat: row.visceral_fat,
+      vo2Max: row.vo2_max,
+      notes: row.notes,
+      sleep: row.sleep,
+      nutrition: row.nutrition,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    }));
   }
 
   async createBodyCompositionEntry(entry: InsertBodyCompositionEntry): Promise<BodyCompositionEntry> {
-    const [newEntry] = await db.insert(bodyCompositionEntries).values(entry).returning();
-    return newEntry;
+    const result = await db.execute(sql`
+      INSERT INTO "Body Composition Entries" (patient_id, entry_date, height_in, weight_lbs, bmi, body_fat_percentage, skeletal_muscle, visceral_fat, notes)
+      VALUES (${entry.patientId}, ${entry.entryDate || new Date()}, ${entry.heightIn || 0}, ${entry.weightLbs || 0}, ${entry.bmi || ""}, ${entry.bodyFatPerc || ""}, ${entry.skeletalMusc || ""}, ${entry.visceralFat || ""}, ${entry.notes || ""})
+      RETURNING id, patient_id, entry_date, height_in, weight_lbs, bmi, bmr, tdee, 
+                activity_level, body_fat_percentage, total_body_fat, skeletal_muscle, 
+                visceral_fat, vo2_max, notes, sleep, nutrition, created_at, timestamp
+    `);
+    
+    const row = result.rows[0] as any;
+    return {
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      heightIn: row.height_in,
+      weightLbs: row.weight_lbs,
+      bmi: row.bmi,
+      bmr: row.bmr,
+      tdee: row.tdee,
+      activityLevel: row.activity_level,
+      bodyFatPerc: row.body_fat_percentage,
+      totalBodyFat: row.total_body_fat,
+      skeletalMusc: row.skeletal_muscle,
+      visceralFat: row.visceral_fat,
+      vo2Max: row.vo2_max,
+      notes: row.notes,
+      sleep: row.sleep,
+      nutrition: row.nutrition,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    };
   }
 
   async updateBodyCompositionEntry(id: string, entry: Partial<InsertBodyCompositionEntry>): Promise<BodyCompositionEntry> {
@@ -238,29 +328,99 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getPatientCardiovascularHealth(patientId: string): Promise<CardiovascularHealthEntry[]> {
-    return await db
-      .select()
-      .from(cardiovascularHealthEntries)
-      .where(eq(cardiovascularHealthEntries.patientId, patientId))
-      .orderBy(desc(cardiovascularHealthEntries.entryDate));
+    const result = await db.execute(sql`
+      SELECT id, patient_id, entry_date, lipids, blood_pressure, inflammation, 
+             other_markers, risk_factors, medications, interventions, created_at, timestamp
+      FROM cardiovascular 
+      WHERE patient_id = ${patientId}
+      ORDER BY entry_date DESC
+    `);
+    
+    return result.rows.map((row: any) => ({
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      lipids: row.lipids,
+      bloodPressure: row.blood_pressure,
+      inflammation: row.inflammation,
+      otherMarkers: row.other_markers,
+      riskFactors: row.risk_factors,
+      medications: row.medications,
+      interventions: row.interventions,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    }));
   }
 
   async createCardiovascularHealthEntry(entry: InsertCardiovascularHealthEntry): Promise<CardiovascularHealthEntry> {
-    const [newEntry] = await db.insert(cardiovascularHealthEntries).values(entry).returning();
-    return newEntry;
+    const result = await db.execute(sql`
+      INSERT INTO cardiovascular (patient_id, entry_date, lipids, blood_pressure, inflammation)
+      VALUES (${entry.patientId}, ${entry.entryDate || new Date()}, ${entry.lipids || {}}, ${entry.bloodPressure || 120}, ${entry.inflammation || {}})
+      RETURNING id, patient_id, entry_date, lipids, blood_pressure, inflammation, 
+                other_markers, risk_factors, medications, interventions, created_at, timestamp
+    `);
+    
+    const row = result.rows[0] as any;
+    return {
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      lipids: row.lipids,
+      bloodPressure: row.blood_pressure,
+      inflammation: row.inflammation,
+      otherMarkers: row.other_markers,
+      riskFactors: row.risk_factors,
+      medications: row.medications,
+      interventions: row.interventions,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    };
   }
 
   async getPatientMetabolicHealth(patientId: string): Promise<MetabolicHealthEntry[]> {
-    return await db
-      .select()
-      .from(metabolicHealthEntries)
-      .where(eq(metabolicHealthEntries.patientId, patientId))
-      .orderBy(desc(metabolicHealthEntries.entryDate));
+    const result = await db.execute(sql`
+      SELECT id, patient_id, entry_date, glucose_metrics, metabolic_markers, 
+             weight_management, glp1_therapy, interventions, created_at, timestamp
+      FROM metabaolic 
+      WHERE patient_id = ${patientId}
+      ORDER BY entry_date DESC
+    `);
+    
+    return result.rows.map((row: any) => ({
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      glucoseMetrics: row.glucose_metrics,
+      metabolicMarkers: row.metabolic_markers,
+      weightManagement: row.weight_management,
+      glp1Therapy: row.glp1_therapy,
+      interventions: row.interventions,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    }));
   }
 
   async createMetabolicHealthEntry(entry: InsertMetabolicHealthEntry): Promise<MetabolicHealthEntry> {
-    const [newEntry] = await db.insert(metabolicHealthEntries).values(entry).returning();
-    return newEntry;
+    const result = await db.execute(sql`
+      INSERT INTO metabaolic (patient_id, entry_date, glucose_metrics, metabolic_markers, weight_management)
+      VALUES (${entry.patientId}, ${entry.entryDate || new Date()}, ${entry.glucoseMetrics || ""}, ${entry.metabolicMarkers || ""}, ${entry.weightManagement || ""})
+      RETURNING id, patient_id, entry_date, glucose_metrics, metabolic_markers, 
+                weight_management, glp1_therapy, interventions, created_at, timestamp
+    `);
+    
+    const row = result.rows[0] as any;
+    return {
+      id: row.id.toString(),
+      patientId: row.patient_id,
+      entryDate: row.entry_date,
+      glucoseMetrics: row.glucose_metrics,
+      metabolicMarkers: row.metabolic_markers,
+      weightManagement: row.weight_management,
+      glp1Therapy: row.glp1_therapy,
+      interventions: row.interventions,
+      createdAt: row.created_at,
+      timestamp: row.timestamp
+    };
   }
 
   // Lab records operations
@@ -293,18 +453,9 @@ export class DatabaseStorage implements IStorage {
   // Advanced treatments operations
   async getPatientPeptides(patientId: string): Promise<PeptideEntry[]> {
     return await db
-      .select({
-        id: peptideEntries.id,
-        medicationEntryId: peptideEntries.medicationEntryId,
-        name: peptideEntries.name,
-        dosage: peptideEntries.dosage,
-        frequency: peptideEntries.frequency,
-        startDate: peptideEntries.startDate,
-        status: peptideEntries.status,
-      })
+      .select()
       .from(peptideEntries)
-      .innerJoin(medicationEntries, eq(peptideEntries.medicationEntryId, medicationEntries.id))
-      .where(eq(medicationEntries.patientId, patientId))
+      .where(eq(peptideEntries.patientId, patientId))
       .orderBy(desc(peptideEntries.startDate));
   }
 
@@ -315,16 +466,9 @@ export class DatabaseStorage implements IStorage {
 
   async getPatientSupplements(patientId: string): Promise<SupplementEntry[]> {
     return await db
-      .select({
-        id: supplementEntries.id,
-        medicationEntryId: supplementEntries.medicationEntryId,
-        name: supplementEntries.name,
-        dosage: supplementEntries.dosage,
-        details: supplementEntries.details,
-      })
+      .select()
       .from(supplementEntries)
-      .innerJoin(medicationEntries, eq(supplementEntries.medicationEntryId, medicationEntries.id))
-      .where(eq(medicationEntries.patientId, patientId));
+      .where(eq(supplementEntries.patientId, patientId));
   }
 
   async createSupplementEntry(entry: InsertSupplementEntry): Promise<SupplementEntry> {
@@ -334,15 +478,9 @@ export class DatabaseStorage implements IStorage {
 
   async getPatientIvTreatments(patientId: string): Promise<IvTreatmentEntry[]> {
     return await db
-      .select({
-        id: ivTreatmentEntries.id,
-        medicationEntryId: ivTreatmentEntries.medicationEntryId,
-        name: ivTreatmentEntries.name,
-        components: ivTreatmentEntries.components,
-      })
+      .select()
       .from(ivTreatmentEntries)
-      .innerJoin(medicationEntries, eq(ivTreatmentEntries.medicationEntryId, medicationEntries.id))
-      .where(eq(medicationEntries.patientId, patientId));
+      .where(eq(ivTreatmentEntries.patientId, patientId));
   }
 
   async createIvTreatmentEntry(entry: InsertIvTreatmentEntry): Promise<IvTreatmentEntry> {
