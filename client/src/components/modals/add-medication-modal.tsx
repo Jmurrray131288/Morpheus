@@ -29,8 +29,7 @@ const medicationFormSchema = z.object({
   dosage: z.string().optional().nullable(),
   frequency: z.string().optional().nullable(),
   duration: z.string().optional().nullable(),
-  instructions: z.string().optional().import { useState } from "react";
-inullable(),
+  instructions: z.string().optional().nullable(),
   startDate: z.string().optional().nullable(),
   status: z.string().default("Active"),
 });
