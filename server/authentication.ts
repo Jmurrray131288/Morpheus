@@ -1,7 +1,6 @@
 import { executeQuery } from './supabase';
 import bcrypt from 'bcrypt';
 import { RLSUser } from './rls';
-import type { AuthUser, CreateUserData, LoginCredentials } from '../shared/schema';
 import { randomUUID } from 'crypto';
 
 /**
@@ -50,26 +49,33 @@ export async function verifyPassword(password: string, hashedPassword: string): 
  */
 export async function createUser(userData: CreateUserData): Promise<AuthenticatedUser> {
   const hashedPassword = await hashPassword(userData.password);
+  const userId = randomUUID();
   
-  const [user] = await db.insert(users).values({
-    id: randomUUID(),
-    email: userData.email,
-    passwordHash: hashedPassword,
-    role: userData.role,
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    organizationId: userData.organizationId,
-    patientIds: userData.patientIds,
-  }).returning();
+  const result = await executeQuery(
+    `INSERT INTO users (id, email, password_hash, role, first_name, last_name, organization_id, patient_ids) 
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+     RETURNING *`,
+    [
+      userId,
+      userData.email,
+      hashedPassword,
+      userData.role,
+      userData.firstName || null,
+      userData.lastName || null,
+      userData.organizationId || null,
+      userData.patientIds || null
+    ]
+  );
 
+  const user = result[0];
   return {
     id: user.id,
     email: user.email,
     role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
-    firstName: user.firstName || undefined,
-    lastName: user.lastName || undefined,
-    organizationId: userData.organizationId,
-    patientIds: userData.patientIds
+    firstName: user.first_name || undefined,
+    lastName: user.last_name || undefined,
+    organizationId: user.organization_id || undefined,
+    patientIds: user.patient_ids || undefined
   };
 }
 
@@ -78,17 +84,17 @@ export async function createUser(userData: CreateUserData): Promise<Authenticate
  */
 export async function authenticateUser(credentials: LoginCredentials): Promise<AuthenticatedUser | null> {
   try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.email, credentials.email))
-      .limit(1);
+    const result = await executeQuery(
+      'SELECT * FROM users WHERE email = $1 LIMIT 1',
+      [credentials.email]
+    );
 
-    if (!user) {
+    if (result.length === 0) {
       return null;
     }
 
-    const passwordValid = await verifyPassword(credentials.password, user.passwordHash);
+    const user = result[0];
+    const passwordValid = await verifyPassword(credentials.password, user.password_hash);
     if (!passwordValid) {
       return null;
     }
@@ -97,10 +103,10 @@ export async function authenticateUser(credentials: LoginCredentials): Promise<A
       id: user.id,
       email: user.email,
       role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
-      firstName: user.firstName || undefined,
-      lastName: user.lastName || undefined,
-      organizationId: user.organizationId || undefined,
-      patientIds: user.patientIds || undefined
+      firstName: user.first_name || undefined,
+      lastName: user.last_name || undefined,
+      organizationId: user.organization_id || undefined,
+      patientIds: user.patient_ids || undefined
     };
   } catch (error) {
     console.error('Authentication error:', error);
@@ -113,24 +119,24 @@ export async function authenticateUser(credentials: LoginCredentials): Promise<A
  */
 export async function getUserById(id: string): Promise<AuthenticatedUser | null> {
   try {
-    const [user] = await db
-      .select()
-      .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
+    const result = await executeQuery(
+      'SELECT * FROM users WHERE id = $1 LIMIT 1',
+      [id]
+    );
 
-    if (!user) {
+    if (result.length === 0) {
       return null;
     }
 
+    const user = result[0];
     return {
       id: user.id,
       email: user.email,
       role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
-      firstName: user.firstName || undefined,
-      lastName: user.lastName || undefined,
-      organizationId: user.organizationId || undefined,
-      patientIds: user.patientIds || undefined
+      firstName: user.first_name || undefined,
+      lastName: user.last_name || undefined,
+      organizationId: user.organization_id || undefined,
+      patientIds: user.patient_ids || undefined
     };
   } catch (error) {
     console.error('Get user error:', error);
@@ -143,31 +149,68 @@ export async function getUserById(id: string): Promise<AuthenticatedUser | null>
  */
 export async function updateUser(id: string, updates: Partial<CreateUserData>): Promise<AuthenticatedUser | null> {
   try {
-    const updateData: any = { ...updates };
+    const fields = [];
+    const values = [];
+    let paramIndex = 1;
+
+    if (updates.email) {
+      fields.push(`email = $${paramIndex++}`);
+      values.push(updates.email);
+    }
     
     if (updates.password) {
-      updateData.passwordHash = await hashPassword(updates.password);
-      delete updateData.password;
+      fields.push(`password_hash = $${paramIndex++}`);
+      values.push(await hashPassword(updates.password));
     }
 
-    const [user] = await db
-      .update(users)
-      .set(updateData)
-      .where(eq(users.id, id))
-      .returning();
+    if (updates.role) {
+      fields.push(`role = $${paramIndex++}`);
+      values.push(updates.role);
+    }
 
-    if (!user) {
+    if (updates.firstName !== undefined) {
+      fields.push(`first_name = $${paramIndex++}`);
+      values.push(updates.firstName);
+    }
+
+    if (updates.lastName !== undefined) {
+      fields.push(`last_name = $${paramIndex++}`);
+      values.push(updates.lastName);
+    }
+
+    if (updates.organizationId !== undefined) {
+      fields.push(`organization_id = $${paramIndex++}`);
+      values.push(updates.organizationId);
+    }
+
+    if (updates.patientIds !== undefined) {
+      fields.push(`patient_ids = $${paramIndex++}`);
+      values.push(updates.patientIds);
+    }
+
+    if (fields.length === 0) {
+      return await getUserById(id);
+    }
+
+    values.push(id);
+    const result = await executeQuery(
+      `UPDATE users SET ${fields.join(', ')} WHERE id = $${paramIndex} RETURNING *`,
+      values
+    );
+
+    if (result.length === 0) {
       return null;
     }
 
+    const user = result[0];
     return {
       id: user.id,
       email: user.email,
       role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
-      firstName: user.firstName || undefined,
-      lastName: user.lastName || undefined,
-      organizationId: user.organizationId || undefined,
-      patientIds: user.patientIds || undefined
+      firstName: user.first_name || undefined,
+      lastName: user.last_name || undefined,
+      organizationId: user.organization_id || undefined,
+      patientIds: user.patient_ids || undefined
     };
   } catch (error) {
     console.error('Update user error:', error);
@@ -199,10 +242,10 @@ export async function getAllUsers(): Promise<AuthenticatedUser[]> {
       id: user.id,
       email: user.email,
       role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
-      firstName: user.firstName || undefined,
-      lastName: user.lastName || undefined,
-      organizationId: user.organizationId || undefined,
-      patientIds: user.patientIds || undefined
+      firstName: user.first_name || undefined,
+      lastName: user.last_name || undefined,
+      organizationId: user.organization_id || undefined,
+      patientIds: user.patient_ids || undefined
     }));
   } catch (error) {
     console.error('Get all users error:', error);
