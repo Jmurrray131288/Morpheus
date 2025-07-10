@@ -10,10 +10,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Heart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertCardiovascularHealthEntrySchema } from "@shared/schema";
-import type { z } from "zod";
+import type { CardiovascularEntry } from "@shared/schema";
 
-type FormData = z.infer<typeof insertCardiovascularHealthEntrySchema>;
+type FormData = {
+  lipids: string;
+  blood_pressure: number;
+  inflammation: string;
+  other_markers: string;
+  risk_factors: string;
+  medications: string;
+  interventions: string;
+};
 
 interface AddCardiovascularModalProps {
   patientId: string;
@@ -28,15 +35,18 @@ export default function AddCardiovascularModal({ patientId }: AddCardiovascularM
     resolver: zodResolver(insertCardiovascularHealthEntrySchema),
     defaultValues: {
       patientId,
-      bloodPressure: "",
-      lipids: "",
-      inflammation: "",
+      bloodPressure: 120,
+      lipids: {},
+      inflammation: {},
     },
   });
 
   const createCardiovascularMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return await apiRequest(`/api/patients/${patientId}/cardiovascular-health`, "POST", data);
+      return await apiRequest(`/api/patients/${patientId}/cardiovascular-health`, "POST", {
+        ...data,
+        entry_date: new Date(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/cardiovascular-health`] });
@@ -83,9 +93,14 @@ export default function AddCardiovascularModal({ patientId }: AddCardiovascularM
               name="bloodPressure"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Blood Pressure</FormLabel>
+                  <FormLabel>Blood Pressure (Systolic)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., 120/80 mmHg" {...field} />
+                    <Input 
+                      type="number" 
+                      placeholder="e.g., 120" 
+                      {...field}
+                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -96,11 +111,20 @@ export default function AddCardiovascularModal({ patientId }: AddCardiovascularM
               name="lipids"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Lipids</FormLabel>
+                  <FormLabel>Lipids (JSON format)</FormLabel>
                   <FormControl>
                     <Textarea 
-                      placeholder="e.g., Total cholesterol: 180 mg/dL, LDL: 100 mg/dL, HDL: 60 mg/dL, Triglycerides: 150 mg/dL"
+                      placeholder='e.g., {"total": 180, "ldl": 100, "hdl": 60, "triglycerides": 150}'
                       {...field}
+                      onChange={(e) => {
+                        try {
+                          const parsed = JSON.parse(e.target.value || '{}');
+                          field.onChange(parsed);
+                        } catch {
+                          field.onChange(e.target.value);
+                        }
+                      }}
+                      value={typeof field.value === 'object' ? JSON.stringify(field.value) : field.value}
                     />
                   </FormControl>
                   <FormMessage />
