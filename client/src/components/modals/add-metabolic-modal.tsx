@@ -10,10 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, TrendingUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
-import { insertMetabolicHealthEntrySchema } from "@shared/schema";
-import type { z } from "zod";
+import type { MetabolicEntry } from "@shared/schema";
 
-type FormData = z.infer<typeof insertMetabolicHealthEntrySchema>;
+type FormData = {
+  glucose_metrics: string;
+  metabolic_markers: string;
+  weight_management: string;
+  glp1_therapy: string;
+  interventions: string;
+};
 
 interface AddMetabolicModalProps {
   patientId: string;
@@ -36,7 +41,10 @@ export default function AddMetabolicModal({ patientId }: AddMetabolicModalProps)
 
   const createMetabolicMutation = useMutation({
     mutationFn: async (data: FormData) => {
-      return await apiRequest(`/api/patients/${patientId}/metabolic-health`, "POST", data);
+      return await apiRequest(`/api/patients/${patientId}/metabolic-health`, "POST", {
+        ...data,
+        entry_date: new Date(),
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/patients/${patientId}/metabolic-health`] });
