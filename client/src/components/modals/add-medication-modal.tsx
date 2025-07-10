@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +29,8 @@ const medicationFormSchema = z.object({
   dosage: z.string().optional().nullable(),
   frequency: z.string().optional().nullable(),
   duration: z.string().optional().nullable(),
-  instructions: z.string().optional().nullable(),
+  instructions: z.string().optional().import { useState } from "react";
+inullable(),
   startDate: z.string().optional().nullable(),
   status: z.string().default("Active"),
 });
