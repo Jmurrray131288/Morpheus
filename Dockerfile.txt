@@ -1,20 +1,22 @@
+# Use Node.js 18 Alpine base image
 FROM node:18-alpine
 
+# Set working directory inside the container
 WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install dependencies with verbose output
+RUN npm ci --only=production --verbose
 
-# Copy source code
+# Copy application source code
 COPY . .
 
-# Build the application
-RUN npm run build
+# Build the application with verbose output
+RUN npm run build --verbose
 
-# Expose port
+# Expose application port
 EXPOSE 5000
 
 # Start the application
