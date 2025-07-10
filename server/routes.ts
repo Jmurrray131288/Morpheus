@@ -284,11 +284,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/visit-notes", async (req, res) => {
     try {
-      const validatedData = insertVisitNoteSchema.parse({
+      const noteData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const note = await storage.createVisitNote(validatedData);
+      };
+      const note = await storage.createVisitNote(noteData);
       res.status(201).json(note);
     } catch (error) {
       console.error("Error creating visit note:", error);
@@ -298,8 +298,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/visit-notes/:id", async (req, res) => {
     try {
-      const validatedData = insertVisitNoteSchema.partial().parse(req.body);
-      const note = await storage.updateVisitNote(req.params.id, validatedData);
+      const note = await storage.updateVisitNote(req.params.id, req.body);
       res.json(note);
     } catch (error) {
       console.error("Error updating visit note:", error);
@@ -337,24 +336,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         patientId: req.params.patientId,
         entryDate: new Date(), // Always use current timestamp
       };
-      const validatedData = insertBodyCompositionEntrySchema.parse(bodyData);
-      console.log("Validated data:", JSON.stringify(validatedData, null, 2));
-      const entry = await storage.createBodyCompositionEntry(validatedData);
+      console.log("Processed data:", JSON.stringify(bodyData, null, 2));
+      const entry = await storage.createBodyCompositionEntry(bodyData);
       res.status(201).json(entry);
     } catch (error) {
       console.error("Error creating body composition entry:", error);
       console.error("Error details:", (error as any).message);
-      if ((error as any).issues) {
-        console.error("Validation issues:", JSON.stringify((error as any).issues, null, 2));
-      }
       res.status(400).json({ message: "Failed to create body composition entry", error: (error as any).message });
     }
   });
 
   app.put("/api/patients/:patientId/body-composition/:id", async (req, res) => {
     try {
-      const validatedData = insertBodyCompositionEntrySchema.partial().parse(req.body);
-      const entry = await storage.updateBodyCompositionEntry(req.params.id, validatedData);
+      const entry = await storage.updateBodyCompositionEntry(req.params.id, req.body);
       res.json(entry);
     } catch (error) {
       console.error("Error updating body composition entry:", error);
@@ -372,8 +366,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         entryDate: new Date(), // Keep original timestamp or update as needed
       };
       
-      const validatedData = insertBodyCompositionEntrySchema.parse(bodyData);
-      const entry = await storage.updateBodyCompositionEntry(req.params.entryId, validatedData);
+      const entry = await storage.updateBodyCompositionEntry(req.params.entryId, bodyData);
       res.json(entry);
     } catch (error) {
       console.error("Error updating body composition entry:", error);
@@ -393,11 +386,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/cardiovascular-health", async (req, res) => {
     try {
-      const validatedData = insertCardiovascularHealthEntrySchema.parse({
+      const entryData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const entry = await storage.createCardiovascularHealthEntry(validatedData);
+      };
+      const entry = await storage.createCardiovascularHealthEntry(entryData);
       res.status(201).json(entry);
     } catch (error) {
       console.error("Error creating cardiovascular health entry:", error);
@@ -417,11 +410,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/metabolic-health", async (req, res) => {
     try {
-      const validatedData = insertMetabolicHealthEntrySchema.parse({
+      const entryData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const entry = await storage.createMetabolicHealthEntry(validatedData);
+      };
+      const entry = await storage.createMetabolicHealthEntry(entryData);
       res.status(201).json(entry);
     } catch (error) {
       console.error("Error creating metabolic health entry:", error);
@@ -442,11 +435,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/lab-records", async (req, res) => {
     try {
-      const validatedData = insertLabRecordSchema.parse({
+      const recordData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const record = await storage.createLabRecord(validatedData);
+      };
+      const record = await storage.createLabRecord(recordData);
       res.status(201).json(record);
     } catch (error) {
       console.error("Error creating lab record:", error);
@@ -456,8 +449,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/lab-records/:id", async (req, res) => {
     try {
-      const validatedData = insertLabRecordSchema.partial().parse(req.body);
-      const record = await storage.updateLabRecord(req.params.id, validatedData);
+      const record = await storage.updateLabRecord(req.params.id, req.body);
       res.json(record);
     } catch (error) {
       console.error("Error updating lab record:", error);
@@ -492,7 +484,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const fileData = await uploadLabReportFile(req.file, patientId, reportName);
 
       // Create lab record in database
-      const validatedData = insertLabRecordSchema.parse({
+      const recordData = {
         patientId,
         recordDate: new Date(recordDate),
         pdfReports: {
@@ -507,9 +499,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
           reportName,
           notes: notes || null,
         },
-      });
+      };
 
-      const labRecord = await storage.createLabRecord(validatedData);
+      const labRecord = await storage.createLabRecord(recordData);
       res.status(201).json(labRecord);
     } catch (error) {
       console.error("Error uploading lab report:", error);
@@ -530,11 +522,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/peptides", async (req, res) => {
     try {
-      const validatedData = insertPeptideEntrySchema.parse({
+      const entryData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const peptide = await storage.createPeptideEntry(validatedData);
+      };
+      const peptide = await storage.createPeptideEntry(entryData);
       res.status(201).json(peptide);
     } catch (error) {
       console.error("Error creating peptide entry:", error);
@@ -554,11 +546,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/supplements", async (req, res) => {
     try {
-      const validatedData = insertSupplementEntrySchema.parse({
+      const entryData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const supplement = await storage.createSupplementEntry(validatedData);
+      };
+      const supplement = await storage.createSupplementEntry(entryData);
       res.status(201).json(supplement);
     } catch (error) {
       console.error("Error creating supplement entry:", error);
@@ -578,11 +570,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/iv-treatments", async (req, res) => {
     try {
-      const validatedData = insertIvTreatmentEntrySchema.parse({
+      const entryData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const treatment = await storage.createIvTreatmentEntry(validatedData);
+      };
+      const treatment = await storage.createIvTreatmentEntry(entryData);
       res.status(201).json(treatment);
     } catch (error) {
       console.error("Error creating IV treatment entry:", error);
@@ -603,11 +595,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/genomic-reports", async (req, res) => {
     try {
-      const validatedData = insertGenomicReportSchema.parse({
+      const reportData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const report = await storage.createGenomicReport(validatedData);
+      };
+      const report = await storage.createGenomicReport(reportData);
       res.status(201).json(report);
     } catch (error) {
       console.error("Error creating genomic report:", error);
@@ -627,11 +619,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/precision-lab-reports", async (req, res) => {
     try {
-      const validatedData = insertPrecisionLabReportSchema.parse({
+      const reportData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const report = await storage.createPrecisionLabReport(validatedData);
+      };
+      const report = await storage.createPrecisionLabReport(reportData);
       res.status(201).json(report);
     } catch (error) {
       console.error("Error creating precision lab report:", error);
@@ -651,11 +643,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/patients/:patientId/precision-tests", async (req, res) => {
     try {
-      const validatedData = insertPrecisionTestSchema.parse({
+      const testData = {
         ...req.body,
         patientId: req.params.patientId,
-      });
-      const test = await storage.createPrecisionTest(validatedData);
+      };
+      const test = await storage.createPrecisionTest(testData);
       res.status(201).json(test);
     } catch (error) {
       console.error("Error creating precision test:", error);
