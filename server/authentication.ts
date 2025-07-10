@@ -180,7 +180,7 @@ export async function updateUser(id: string, updates: Partial<CreateUserData>): 
  */
 export async function deleteUser(id: string): Promise<boolean> {
   try {
-    await db.delete(users).where(eq(users.id, id));
+    await executeQuery('DELETE FROM users WHERE id = $1', [id]);
     return true;
   } catch (error) {
     console.error('Delete user error:', error);
@@ -193,9 +193,9 @@ export async function deleteUser(id: string): Promise<boolean> {
  */
 export async function getAllUsers(): Promise<AuthenticatedUser[]> {
   try {
-    const userList = await db.select().from(users);
+    const result = await executeQuery('SELECT * FROM users');
     
-    return userList.map(user => ({
+    return result.map(user => ({
       id: user.id,
       email: user.email,
       role: user.role as 'admin' | 'doctor' | 'nurse' | 'staff',
@@ -215,7 +215,7 @@ export async function getAllUsers(): Promise<AuthenticatedUser[]> {
  */
 export async function createDefaultAdmin(): Promise<void> {
   try {
-    const existingUsers = await db.select().from(users).limit(1);
+    const existingUsers = await executeQuery('SELECT id FROM users LIMIT 1');
     
     if (existingUsers.length === 0) {
       const defaultAdmin = {
